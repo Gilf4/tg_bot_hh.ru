@@ -3,11 +3,10 @@ import asyncio
 from aiogram import Bot
 from aiogram import Dispatcher
 from aiogram import types
-from API import main
+from config import Bot_Token
+from API import handler_api
 
-BotToken = "6685239270:AAFpTPGopInOtMsC1cAUuvsHWTGHgXG9K6c"
-
-bot = Bot(token=BotToken)
+bot = Bot(token=Bot_Token)
 dp = Dispatcher()
 
 
