@@ -1,22 +1,20 @@
 import asyncio
+import logging
 
-from aiogram import Bot
-from aiogram import Dispatcher
-from aiogram import types
+from aiogram import Bot, Dispatcher, Router, types
+
 from config import Bot_Token
-from API import handler_api
 
+logging.basicConfig(level=logging.INFO)
+
+# Initialize bot and dispatcher
 bot = Bot(token=Bot_Token)
 dp = Dispatcher()
 
 
 @dp.message()
-async def get_message(message: types.Message):
-    # result = main.get_vacancies(str(message))
-    await bot.send_message(
-        chat_id=message.chat.id,
-        text=main.get_vacancies(str(message))
-    )
+async def echo(message: types.Message):
+    await bot.send_message(message.chat.id, message.text)
 
 
 async def main():
