@@ -4,9 +4,9 @@ from url_requests import *
 
 def send_requests(url: str, par: dict = None) -> any:
     """
-    :param url: path to api
+    :param url: url api
     :param par: options params
-    :return: json request for path with params
+    :return: json request for url with params
     """
 
     req = requests.get(url, params=par)
@@ -17,6 +17,10 @@ def send_requests(url: str, par: dict = None) -> any:
 
 
 def get_areas_json() -> any:
+    """
+    :return: returned json areas
+    """
+
     return send_requests(url_get_areas)
 
 
@@ -28,18 +32,19 @@ def json_to_dict(areas_tree: any, areas: dict) -> None:
             json_to_dict(area['areas'], areas)
 
 
-def get_areas(is_all: bool = False):
+def get_areas(is_smarted: bool = False):
     """
     :return: return dict {name: number name}
-    :param is_all: is True return {number name: name}
+    :param is_smarted: is True return {number name: name}
     """
 
     areas_tree = get_areas_json()
     areas = {}
     json_to_dict(areas_tree, areas)
 
-    if is_all:
+    if is_smarted:
         for name in list(areas):
+            areas[name.lower()] = areas[name]
             areas[areas[name]] = name
 
     return areas
