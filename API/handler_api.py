@@ -10,10 +10,11 @@ def send_requests(url: str, par: dict = None) -> any:
     """
 
     req = requests.get(url, params=par)
-    data = req.json()
-    req.close()
 
-    return data
+    if req.status_code == 200:
+        data = req.json()
+        req.close()
+        return data
 
 
 def get_areas_json() -> any:

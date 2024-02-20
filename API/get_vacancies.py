@@ -1,5 +1,6 @@
 import requests
 
+
 URL_VACANCIES = 'https://api.hh.ru/vacancies'
 
 
