@@ -1,5 +1,5 @@
 import requests
-from api_requests import *
+from url_requests import *
 
 
 def send_requests(url: str, par: dict = None) -> any:
@@ -16,16 +16,16 @@ def send_requests(url: str, par: dict = None) -> any:
     return data
 
 
-def get_areas_tree() -> any:
-    return send_requests(get_areas_api)
+def get_areas_json() -> any:
+    return send_requests(url_get_areas)
 
 
-def pars_areas(areas_tree: any, areas: dict) -> None:
+def json_to_dict(areas_tree: any, areas: dict) -> None:
     for area in areas_tree:
         areas[area['name']] = area['id']
 
         if area.get('areas'):
-            pars_areas(area['areas'], areas)
+            json_to_dict(area['areas'], areas)
 
 
 def get_areas(is_all: bool = False):
@@ -34,9 +34,9 @@ def get_areas(is_all: bool = False):
     :param is_all: is True return {number name: name}
     """
 
-    areas_tree = get_areas_tree()
+    areas_tree = get_areas_json()
     areas = {}
-    pars_areas(areas_tree, areas)
+    json_to_dict(areas_tree, areas)
 
     if is_all:
         for name in list(areas):
