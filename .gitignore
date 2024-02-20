@@ -1,4 +1,9 @@
 bot/config.py
+<<<<<<< HEAD
 .idea
 venv/
 venv
+=======
+.idea/
+.DS_Store
+>>>>>>> 2a3e55b2dd93ced106019844c598e52269566846
