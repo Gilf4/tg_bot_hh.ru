@@ -31,9 +31,8 @@ def format_salary(salary_dict):
         return "Зарплата не указана"
 
 
-@dp.message()
-async def send_vacancies(message: types.Message):
-    vacancies = get_vacancies(message.text)
+def format_vacancies(text):
+    vacancies = get_vacancies(text)
     if vacancies:
         vacancies_text = ''
         for item in vacancies.get('items', []):
@@ -44,11 +43,16 @@ async def send_vacancies(message: types.Message):
             vacancies_text += f"Город: {item['area']['name']}\n"
             vacancies_text += f"URL вакансии: {item['alternate_url']}\n\n"
         if vacancies_text:
-            await message.answer(vacancies_text)
+            return vacancies_text
         else:
-            await message.answer("По вашему запросу ничего не найдено.")
+            return "По вашему запросу ничего не найдено."
     else:
-        await message.answer("Ошибка при запросе")
+        return "Ошибка при запросе"
+
+
+@dp.message()
+async def send_vacancies(message: types.Message):
+    await message.answer(format_vacancies(message.text))
 
 
 async def main():
