@@ -1,6 +1,5 @@
 import requests
 from url_requests import *
-from API.url_requests import get_vacancies_api
 
 
 def send_requests(url: str, par: dict = None) -> any:
@@ -31,11 +30,9 @@ def get_vacancies(language, page=1, per_page=10):
         'text': f'NAME:{language}',
         'per_page': per_page,
         'page': page,
-        # сортировка вакансий по дате добавления компании этой вакансии,
-        # навреное надо будет выпилить потому что какие-то странные ваканции выдает
-        # 'order_by': 'publication_time'
+        # 'order_by': 'publication_time' <- сортирует по дате добавления компании
     }
-    req = requests.get(URL_VACANCIES, params=params)
+    req = requests.get(url_get_vacancies, params=params)
     if req.status_code == 200:
         return req.json()
     else:
@@ -43,7 +40,7 @@ def get_vacancies(language, page=1, per_page=10):
 
 
 def main():
-    data = get_areas(True)
+    data = get_areas_json(True)
     print(data)
     print(data.get('Нижний Новгород'))
 

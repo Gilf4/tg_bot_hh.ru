@@ -4,7 +4,7 @@ import logging
 from aiogram import Bot, Dispatcher, Router, types
 
 from config import Bot_Token
-from API.get_vacancies import get_vacancies
+from api.get_vacancies import get_vacancies
 
 logging.basicConfig(level=logging.INFO)
 
