@@ -1,5 +1,6 @@
 import requests
 from url_requests import *
+from API.url_requests import get_vacancies_api
 
 
 def send_requests(url: str, par: dict = None) -> any:
@@ -25,30 +26,20 @@ def get_areas_json() -> any:
     return send_requests(url_get_areas)
 
 
-def json_to_dict(areas_tree: any, areas: dict) -> None:
-    for area in areas_tree:
-        areas[area['name']] = area['id']
-
-        if area.get('areas'):
-            json_to_dict(area['areas'], areas)
-
-
-def get_areas(is_smarted: bool = False):
-    """
-    :return: return dict {name: number name}
-    :param is_smarted: is True return {number name: name}
-    """
-
-    areas_tree = get_areas_json()
-    areas = {}
-    json_to_dict(areas_tree, areas)
-
-    if is_smarted:
-        for name in list(areas):
-            areas[name.lower()] = areas[name]
-            areas[areas[name]] = name
-
-    return areas
+def get_vacancies(language, page=1, per_page=10):
+    params = {
+        'text': f'NAME:{language}',
+        'per_page': per_page,
+        'page': page,
+        # сортировка вакансий по дате добавления компании этой вакансии,
+        # навреное надо будет выпилить потому что какие-то странные ваканции выдает
+        # 'order_by': 'publication_time'
+    }
+    req = requests.get(URL_VACANCIES, params=params)
+    if req.status_code == 200:
+        return req.json()
+    else:
+        return None
 
 
 def main():
