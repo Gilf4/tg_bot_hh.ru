@@ -32,11 +32,8 @@ def get_vacancies(language, page=1, per_page=10):
         'page': page,
         # 'order_by': 'publication_time' <- сортирует по дате добавления компании
     }
-    req = requests.get(url_get_vacancies, params=params)
-    if req.status_code == 200:
-        return req.json()
-    else:
-        return None
+    data = send_requests(url_get_areas, params)
+    return data
 
 
 def main():

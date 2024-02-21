@@ -1,4 +1,4 @@
-from API.handler_api import get_areas_json, get_vacancies
+from api.handler_api import get_areas_json, get_vacancies
 
 
 def json_to_dict(areas_tree: any, areas: dict) -> None:
