@@ -38,34 +38,6 @@ def get_vacancies(query, page=1, per_page=10):
     return data
 
 
-# def get_list_of_salaries(language):
-#     params = {
-#         'text': language,
-#         'search_field': 'name',  # Искать только в заголовках вакансий
-#         'only_with_salary': 'true',  # Искать только вакансии с указанной зарплатой
-#         'per_page': 100,
-#         'page': 0
-#     }
-#     list_of_salaries = []
-#     while True:
-#         req = requests.get(url_get_vacancies, params=params)
-#         if req.status_code == 200:
-#             data = req.json()
-#             for item in data['items']:
-#                 salary = item['salary']
-#                 if salary and 'from' in salary and 'to' in salary:
-#                     list_of_salaries.append((salary['from'] + salary['to']) / 2)
-#                 elif salary and 'from' in salary:
-#                     list_of_salaries.append(salary['from'])
-#                 elif salary and 'to' in salary:
-#                     list_of_salaries.append(salary['to'])
-#             if data['pages'] <= params['page'] + 1:
-#                 break
-#             params['page'] += 1
-#         else:
-#             break
-#
-#     return list_of_salaries
 def get_list_of_salaries(language, level, region_named):
     params = {
         'text': f'{language} {level}',
