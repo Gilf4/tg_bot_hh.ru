@@ -7,6 +7,7 @@ from config import Bot_Token
 
 from utils.utils import format_vacancies, get_list_of_vacancies, calculate_average_salary
 
+
 logging.basicConfig(level=logging.INFO)
 
 # Initialize bot and dispatcher
