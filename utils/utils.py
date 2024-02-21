@@ -1,4 +1,5 @@
-from api.handler_api import get_areas_json, get_vacancies
+from api.handler_api import get_areas_json, get_vacancies, get_list_of_salaries
+import statistics
 
 
 def json_to_dict(areas_tree: any, areas: dict) -> None:
@@ -62,3 +63,7 @@ def format_vacancies(text):
             return "По вашему запросу ничего не найдено."
     else:
         return "Ошибка при запросе"
+
+
+def calculate_average_salary(list_of_salaries):
+    return statistics.median(list_of_salaries)

@@ -25,15 +25,78 @@ def get_areas_json() -> any:
     return send_requests(url_get_areas)
 
 
-def get_vacancies(language, page=1, per_page=10):
+def get_vacancies(query, page=1, per_page=10):
     params = {
-        'text': f'NAME:{language}',
+        'text': query,
         'per_page': per_page,
         'page': page,
+        'search_field': 'name',
+        'only_with_salary': 'true'
         # 'order_by': 'publication_time' <- сортирует по дате добавления компании
     }
     data = send_requests(url_get_vacancies, params)
     return data
+
+
+# def get_list_of_salaries(language):
+#     params = {
+#         'text': language,
+#         'search_field': 'name',  # Искать только в заголовках вакансий
+#         'only_with_salary': 'true',  # Искать только вакансии с указанной зарплатой
+#         'per_page': 100,
+#         'page': 0
+#     }
+#     list_of_salaries = []
+#     while True:
+#         req = requests.get(url_get_vacancies, params=params)
+#         if req.status_code == 200:
+#             data = req.json()
+#             for item in data['items']:
+#                 salary = item['salary']
+#                 if salary and 'from' in salary and 'to' in salary:
+#                     list_of_salaries.append((salary['from'] + salary['to']) / 2)
+#                 elif salary and 'from' in salary:
+#                     list_of_salaries.append(salary['from'])
+#                 elif salary and 'to' in salary:
+#                     list_of_salaries.append(salary['to'])
+#             if data['pages'] <= params['page'] + 1:
+#                 break
+#             params['page'] += 1
+#         else:
+#             break
+#
+#     return list_of_salaries
+def get_list_of_salaries(language, level, region_named):
+    params = {
+        'text': f'{language} {level}',
+        'per_page': 100,
+        'page': 0,
+        "area": region_named,
+        'only_with_salary': True
+    }
+    salaries = []
+
+    while True:
+        response = requests.get(url_get_vacancies, params=params)
+        data = response.json()
+        for item in data['items']:
+            salary = item['salary']
+            if salary:
+                from_value = salary.get('from')
+                to_value = salary.get('to')
+                if from_value and to_value:
+                    salaries.append((from_value + to_value) / 2)
+                elif from_value:
+                    salaries.append(from_value)
+                elif to_value:
+                    salaries.append(to_value)
+
+        if data['pages'] > params['page'] + 1:
+            params['page'] += 1
+        else:
+            break
+
+    return salaries
 
 
 def main():
