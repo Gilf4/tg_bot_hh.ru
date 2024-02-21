@@ -1,5 +1,5 @@
 import requests
-from url_requests import *
+from api.url_requests import *
 
 
 def send_requests(url: str, par: dict = None) -> any:
@@ -32,7 +32,7 @@ def get_vacancies(language, page=1, per_page=10):
         'page': page,
         # 'order_by': 'publication_time' <- сортирует по дате добавления компании
     }
-    data = send_requests(url_get_areas, params)
+    data = send_requests(url_get_vacancies, params)
     return data
 
 
