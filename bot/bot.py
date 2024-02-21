@@ -7,8 +7,6 @@ from config import Bot_Token
 
 from utils.utils import format_vacancies
 
-from api.get_vacancies import get_vacancies
-
 logging.basicConfig(level=logging.INFO)
 
 # Initialize bot and dispatcher

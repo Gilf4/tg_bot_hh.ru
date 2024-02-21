@@ -40,7 +40,7 @@ def get_vacancies(language, page=1, per_page=10):
 
 
 def main():
-    data = get_areas_json(True)
+    data = get_areas_json()
     print(data)
     print(data.get('Нижний Новгород'))
 
