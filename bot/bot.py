@@ -5,7 +5,7 @@ from aiogram import Bot, Dispatcher, Router, types
 
 from config import Bot_Token
 
-from utils.utils import format_vacancies
+from utils.utils import format_vacancies, get_list_of_vacancies, calculate_average_salary
 
 
 logging.basicConfig(level=logging.INFO)
@@ -17,7 +17,8 @@ dp = Dispatcher()
 
 @dp.message()
 async def send_vacancies(message: types.Message):
-    await message.answer(format_vacancies(message.text))
+    vacancies = get_list_of_vacancies(message.text)
+    await message.answer(calculate_average_salary(vacancies))
 
 
 async def main():

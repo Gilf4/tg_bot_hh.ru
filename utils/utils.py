@@ -1,13 +1,13 @@
-from api.handler_api import get_areas_json, get_vacancies
+from api.handler_api import get_areas_json, get_vacancies, get_list_of_salaries
+import statistics
 
 
-def json_to_dict(areas_tree: any, areas: dict) -> None:
-    # Функция - говно, переделывай
+def json_areas_to_dict(areas_tree: any, areas: dict) -> None:
     for area in areas_tree:
         areas[area['name']] = area['id']
 
         if area.get('areas'):
-            json_to_dict(area['areas'], areas)
+            json_areas_to_dict(area['areas'], areas)
 
 
 def get_areas():
@@ -17,7 +17,7 @@ def get_areas():
 
     areas_tree = get_areas_json()
     areas = {}
-    json_to_dict(areas_tree, areas)
+    json_areas_to_dict(areas_tree, areas)
 
     for name in list(areas):
         areas[name.lower()] = areas[name]
@@ -61,6 +61,10 @@ def format_vacancies(text):
             return "По вашему запросу ничего не найдено."
     else:
         return "Ошибка при запросе"
+
+
+def calculate_average_salary(list_of_salaries):
+    return statistics.median(list_of_salaries)
 
 
 def main():
