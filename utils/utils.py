@@ -61,3 +61,13 @@ def format_vacancies(text):
             return "По вашему запросу ничего не найдено."
     else:
         return "Ошибка при запросе"
+
+
+def main():
+    # 'from': 100000, 'to': None
+    data = get_vacancies('python')
+    print(data)
+
+
+if __name__ == '__main__':
+    main()
