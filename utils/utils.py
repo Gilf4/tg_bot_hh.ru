@@ -1,4 +1,4 @@
-from api.handler_api import get_areas_json, get_vacancies, get_list_of_salaries
+from api.handler_api import get_areas_json, get_vacancies, send_requests, get_list_of_salaries
 import statistics
 
 
@@ -66,6 +66,30 @@ def get_count_vacancies(query: str, area: str) -> int:
     return len(data)  # found - key
 
 
+def extend_vacancies(list_vacancies: list) -> list:
+    """
+    Функция расширяет информацию о вакансиях из list_vacancies, путём взятия информации с отдельной страницы
+    вакансии (а не из списка вакансий). Работает очень медлено, 1 - 4 с. одна вакансия!
+    :param list_vacancies: список вакансий для расширения. Предпочтительнее, взятых из smarted_get_vacancies
+    :return: список расширенных вакансий
+    """
+
+    data = []
+
+    for vacancy in list_vacancies:
+        url = vacancy.get('url')  # Получение ссылки на данные со страницы вакансии
+
+        if url:
+            vacancy = send_requests(url)
+        else:
+            continue
+
+        if vacancy:
+            data.append(vacancy)
+
+    return data
+
+
 def format_salary(salary_dict):
     if salary_dict:
         salary_from = salary_dict.get('from', 'Не указана')
@@ -111,8 +135,9 @@ def main():
     # 'from': 100000, 'to': None
     # data = json.dumps(data)
     data = smarted_get_vacancies('python')
-    # print(data)
-    print(len(data))
+    extended_data = extend_vacancies(data)
+    print(extended_data[0])
+    print(len(data), len(extended_data))
 
 
 if __name__ == '__main__':
