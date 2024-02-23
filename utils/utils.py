@@ -2,17 +2,23 @@ from api.handler_api import get_areas_json, get_vacancies, send_requests, get_li
 import statistics
 
 
-def json_areas_to_dict(areas_tree: any, areas: dict) -> None:
-    for area in areas_tree:
+def json_areas_to_dict(areas_json: any, areas: dict) -> None:
+    """
+    Функциа рекурсивного парсинка json'а мест
+    :param areas_json: json мест
+    :param areas: Словарь куда будут складываться найденные значения
+    """
+
+    for area in areas_json:
         areas[area['name']] = area['id']
 
         if area.get('areas'):
             json_areas_to_dict(area['areas'], areas)
 
 
-def get_areas():
+def get_areas() -> dict:
     """
-    :return: return dict {name: number name}
+    :return: Cловарь мест в виде {area_lower: number} и {number: area}. Где number - индефикатор места
     """
 
     areas_tree = get_areas_json()
@@ -68,8 +74,7 @@ def get_count_vacancies(query: str, area: str) -> int:
 
 def extend_vacancies(list_vacancies: list) -> list:
     """
-    Функция расширяет информацию о вакансиях из list_vacancies, путём взятия информации с отдельной страницы
-    вакансии (а не из списка вакансий). Работает очень медлено, 1 - 4 с. одна вакансия!
+    Функция расширяет информацию о вакансиях. Работает очень медлено, 1 - 4 с. одна вакансия!
     :param list_vacancies: список вакансий для расширения. Предпочтительнее, взятых из smarted_get_vacancies
     :return: список расширенных вакансий
     """
