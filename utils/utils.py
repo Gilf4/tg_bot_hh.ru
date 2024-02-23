@@ -130,6 +130,9 @@ def format_skills(skills: dict, count_vacancies: int) -> str:
         message_lines.append(f'{ind}) {skill} - {percent_of} % ({count_skill})')
         ind += 1
 
+    if len(message_lines) == 1:
+        message_lines[0] = 'Информация не найдена'
+
     return '\n'.join(message_lines)
 
 
@@ -175,7 +178,7 @@ def calculate_average_salary(list_of_salaries):
 
 
 def main():
-    data = smarted_get_vacancies('python')
+    data = smarted_get_vacancies('Продавец пятёрочки')[:20]
     extended_data = extend_vacancies(data)
     skills = get_skills(extended_data)
     message = format_skills(skills, len(extended_data))
