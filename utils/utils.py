@@ -111,6 +111,27 @@ def get_skills(extended_vacancies: list) -> dict:
     return skills
 
 
+def format_skills(skills: dict, count_vacancies: int) -> str:
+    """
+    :param skills: Словарь вида {name_skill: count}, где count - количество вакансий с таким скиллом
+    :param count_vacancies: Общее число вакансий
+    :return: Сообщение о стеке технологий
+    """
+
+    message_lines = ['Стек по вашему запросу:']
+    ind = 0
+
+    # Сортировка ключей по частоте встречаемости
+    name_skills = sorted(skills.keys(), key=lambda x: skills[x], reverse=True)
+
+    for skill in name_skills:
+        count_skill = skills[skill]
+        message_lines.append(f'{ind}) {skill} - {count_skill / count_vacancies * 100} % ({count_skill})')
+        ind += 1
+
+    return '\n'.join(message_lines)
+
+
 def format_salary(salary_dict):
     if salary_dict:
         salary_from = salary_dict.get('from', 'Не указана')
@@ -157,8 +178,9 @@ def main():
     # data = json.dumps(data)
     data = smarted_get_vacancies('python')
     extended_data = extend_vacancies(data)
-    print(extended_data[0])
-    print(len(data), len(extended_data))
+    skills = get_skills(extended_data)
+    message = format_skills(skills, len(extended_data))
+    print(message)
 
 
 if __name__ == '__main__':
