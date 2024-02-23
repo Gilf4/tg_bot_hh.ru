@@ -126,7 +126,8 @@ def format_skills(skills: dict, count_vacancies: int) -> str:
 
     for skill in name_skills:
         count_skill = skills[skill]
-        message_lines.append(f'{ind}) {skill} - {count_skill / count_vacancies * 100} % ({count_skill})')
+        percent_of = round(count_skill / count_vacancies * 100, 2)
+        message_lines.append(f'{ind}) {skill} - {percent_of} % ({count_skill})')
         ind += 1
 
     return '\n'.join(message_lines)
@@ -174,10 +175,8 @@ def calculate_average_salary(list_of_salaries):
 
 
 def main():
-    # 'from': 100000, 'to': None
-    # data = json.dumps(data)
     data = smarted_get_vacancies('python')
-    extended_data = extend_vacancies(data)
+    extended_data = extend_vacancies(data)[:1]
     skills = get_skills(extended_data)
     message = format_skills(skills, len(extended_data))
     print(message)
