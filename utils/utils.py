@@ -26,16 +26,16 @@ def get_areas():
     return areas
 
 
-def smarted_get_vacancies(query: str, count_vacancies: int = 0) -> list:
+def smarted_get_vacancies(query: str, count_vacancies: int = 0, area: str = None) -> list:
     """
-    Функция возвращает n - ое количество вакатсий или максимум вакансий, который есть (может быть [ ]).
-    :param query: Запрос по вакатсии (python developer, уборщик пятёрочки)
-    :param count_vacancies: Количестов запрашиваемых вакансий. Если нужны все, то можно ничего не указывать или указать 0.
+    Функция возвращает n - ое количество вакансий или максимум вакансий, который есть (может быть [ ]).
+    :param query: Запрос по вакансий (python developer, уборщик пятёрочки)
+    :param count_vacancies: Количестов запрашиваемых вакансий. Если нужны все, то можно ничего не указывать или указать 0
     :return: Список вакансий
     """
 
     page = -1  # Сдвиг для красоты (первая страница - 0)
-    data = []
+    data = []  # Список вакансий
 
     while len(data) < count_vacancies or not count_vacancies:
         page += 1
@@ -53,6 +53,17 @@ def smarted_get_vacancies(query: str, count_vacancies: int = 0) -> list:
         data = data[:count_vacancies]  # Срезаем лишнии вакансии
 
     return data
+
+
+def get_count_vacancies(query: str, area: str) -> int:
+    """
+    :param query: Запрос по вакансий (python developer, уборщик пятёрочки)
+    :param area: Место поиска вакансий
+    :return: Количество найденных вакансий
+    """
+
+    data = smarted_get_vacancies(query, area=area)  # Неоптимальная реализация. Проблемы со скоростью -> оптимизация
+    return len(data)  # found - key
 
 
 def format_salary(salary_dict):
