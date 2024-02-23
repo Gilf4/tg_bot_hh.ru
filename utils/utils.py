@@ -176,7 +176,7 @@ def calculate_average_salary(list_of_salaries):
 
 def main():
     data = smarted_get_vacancies('python')
-    extended_data = extend_vacancies(data)[:1]
+    extended_data = extend_vacancies(data)
     skills = get_skills(extended_data)
     message = format_skills(skills, len(extended_data))
     print(message)
