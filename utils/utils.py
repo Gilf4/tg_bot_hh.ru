@@ -1,3 +1,4 @@
+from collections import defaultdict
 from api.handler_api import get_areas_json, get_vacancies, send_requests, get_list_of_salaries
 import statistics
 
@@ -93,6 +94,21 @@ def extend_vacancies(list_vacancies: list) -> list:
             data.append(vacancy)
 
     return data
+
+
+def get_skills(extended_vacancies: list) -> dict:
+    """
+    :param extended_vacancies: Список расширенных вакансий
+    :return: Словарь вида {name_skill: count}, где count - количество вакансий с таким скиллом
+    """
+
+    skills = defaultdict(int)
+
+    for vacancy in extended_vacancies:
+        for skill in vacancy.get('key_skills', []):
+            skills[skill['name']] += 1
+
+    return skills
 
 
 def format_salary(salary_dict):
