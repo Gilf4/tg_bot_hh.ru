@@ -25,7 +25,7 @@ def get_areas_json() -> any:
     return send_requests(url_get_areas)
 
 
-def get_vacancies(query, page=1, per_page=10):
+def get_vacancies(query, page=1, per_page=1):
     params = {
         'text': query,
         'per_page': per_page,

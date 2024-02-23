@@ -26,6 +26,35 @@ def get_areas():
     return areas
 
 
+def smarted_get_vacancies(query: str, count_vacancies: int = 0) -> list:
+    """
+    Функция возвращает n - ое количество вакатсий или максимум вакансий, который есть (может быть [ ]).
+    :param query: Запрос по вакатсии (python developer, уборщик пятёрочки)
+    :param count_vacancies: Количестов запрашиваемых вакансий. Если нужны все, то можно ничего не указывать или указать 0.
+    :return: Список вакансий
+    """
+
+    page = -1  # Сдвиг для красоты (первая страница - 0)
+    data = []
+
+    while len(data) < count_vacancies or not count_vacancies:
+        page += 1
+        vacancies = get_vacancies(query, page=page, per_page=100)
+
+        if vacancies and vacancies['items']:
+            data.extend(vacancies['items'])
+        else:
+            break
+
+        if page == vacancies.get('pages'):  # Проверка на последнюю стнаницу
+            break
+
+    if count_vacancies:
+        data = data[:count_vacancies]  # Срезаем лишнии вакансии
+
+    return data
+
+
 def format_salary(salary_dict):
     if salary_dict:
         salary_from = salary_dict.get('from', 'Не указана')
@@ -69,8 +98,10 @@ def calculate_average_salary(list_of_salaries):
 
 def main():
     # 'from': 100000, 'to': None
-    data = get_vacancies('python')
-    print(data)
+    # data = json.dumps(data)
+    data = smarted_get_vacancies('python')
+    # print(data)
+    print(len(data))
 
 
 if __name__ == '__main__':
