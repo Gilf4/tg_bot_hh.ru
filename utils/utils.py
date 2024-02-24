@@ -225,20 +225,11 @@ def get_experience() -> dict:
 
 
 def main():
-    """
-    Функция для быстрого теста или проверок
-    """
-
     data = smarted_get_vacancies('Уборщик')
-    # data = sort_by_price_vacancies(data)
-    s = dict()
+    data = sort_by_price_vacancies(data)
     for el in data:
-        # print(el['alternate_url'])
-        # print(el['salary']['from'], el['salary']['to'])
-        s[el['experience']['name']] = el['experience']['id']
-
-    print(s)
-    print(len(data))
+        print(el['alternate_url'])
+        print(el['salary']['from'], el['salary']['to'])
 
 
 if __name__ == '__main__':

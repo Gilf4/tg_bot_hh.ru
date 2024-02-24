@@ -73,10 +73,6 @@ def get_list_of_salaries(language, level, region_named):
 
 
 def main():
-    """
-    Функция для быстрого теста или проверок
-    """
-
     data = get_areas_json()
     print(data)
     print(data.get('Нижний Новгород'))
