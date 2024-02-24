@@ -4,9 +4,10 @@ from api.url_requests import *
 
 def send_requests(url: str, par: dict = None) -> any:
     """
-    :param url: url api
-    :param par: options params
-    :return: json request for url with params
+    Функция для безопасного отправления запроса
+    :param url: Ссылка на api
+    :param par: Словарь опциональных параметров
+    :return: Ответ в виде json'а или None, если произошла ошибка
     """
 
     req = requests.get(url, params=par)
@@ -19,7 +20,7 @@ def send_requests(url: str, par: dict = None) -> any:
 
 def get_areas_json() -> any:
     """
-    :return: returned json areas
+    :return: словарь мест в виде json'а
     """
 
     return send_requests(url_get_areas)
@@ -72,6 +73,10 @@ def get_list_of_salaries(language, level, region_named):
 
 
 def main():
+    """
+    Функция для быстрого теста или проверок
+    """
+
     data = get_areas_json()
     print(data)
     print(data.get('Нижний Новгород'))
