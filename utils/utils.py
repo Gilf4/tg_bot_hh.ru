@@ -38,6 +38,7 @@ def smarted_get_vacancies(query: str, count_vacancies: int = 0, area: str = None
     Функция возвращает n - ое количество вакансий или максимум вакансий, который есть (может быть [ ]).
     :param query: Запрос по вакансий (python developer, уборщик пятёрочки)
     :param count_vacancies: Количестов запрашиваемых вакансий. Если нужны все, то можно ничего не указывать или указать 0
+    :param area: Не реализована
     :return: Список вакансий
     """
 
@@ -143,7 +144,7 @@ def get_format_skills(query: str) -> str:
     :return: Форматированное сообщение о стеке технологий
     """
 
-    data = smarted_get_vacancies(query)
+    data = smarted_get_vacancies(query)[:20]
     extended_data = extend_vacancies(data)
     skills = get_skills(extended_data)
     message = format_skills(skills, len(extended_data))
@@ -169,7 +170,7 @@ def format_salary(salary_dict):
 
 
 def format_vacancies(text):
-    vacancies = get_vacancies(text)
+    vacancies = get_vacancies(text, per_page=10)
     if vacancies:
         vacancies_text = ''
         for item in vacancies.get('items', []):
