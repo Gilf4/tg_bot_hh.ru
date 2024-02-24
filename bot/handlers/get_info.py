@@ -1,6 +1,7 @@
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from utils import utils
+from utils.formats import format_vacancies
 
 
 async def get_query(massage: Message, state: FSMContext):
@@ -10,10 +11,25 @@ async def get_query(massage: Message, state: FSMContext):
 
 async def get_vacancies(massage: Message, state: FSMContext):
     data = await state.get_data()
-    await massage.answer(utils.format_vacancies(data.get('query')))
+    await massage.answer(utils.get_format_vacancies(data.get('query')))
 
 
 async def get_format_skills(massage: Message, state: FSMContext):
     data = await state.get_data()
     await massage.answer('Данные собираються...')
     await massage.answer(utils.get_format_skills(data.get('query')))
+
+
+async def get_boundary_vacancies(massage: Message, state: FSMContext):
+    data = await state.get_data()
+    vacancies = utils.smarted_get_vacancies(data['query'])
+    vacancies = utils.sort_by_price_vacancies(vacancies)
+    vacancies = [vacancies[0], vacancies[-1]]
+
+    await massage.answer(format_vacancies(vacancies))
+
+
+async def get_count_vacancies(massage: Message, state: FSMContext):
+    data = await state.get_data()
+    count = utils.get_count_vacancies(data.get('query'), area=None)
+    await massage.answer(str(count))

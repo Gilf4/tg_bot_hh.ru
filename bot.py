@@ -6,7 +6,7 @@ from aiogram.filters import Command, CommandStart
 from bot.config import Bot_Token
 
 from bot.handlers.base_handlers import start_bot, base_answer, changing_query, update_query
-from bot.handlers.get_info import get_query, get_vacancies, get_format_skills
+from bot.handlers.get_info import *
 from bot.states.states_base import StepsBase
 
 
@@ -23,7 +23,9 @@ async def start():
     dp.message.register(get_query, StepsBase.BASE_WORK, Command(commands=['get_query']))
     dp.message.register(get_vacancies, StepsBase.BASE_WORK, Command(commands=['get_vacancies']))
     dp.message.register(get_format_skills, StepsBase.BASE_WORK, Command(commands=['get_skills']))
-    dp.message.register(base_answer, Command(commands=['get_query', 'get_vacancies', 'get_skills']))
+    dp.message.register(get_boundary_vacancies, StepsBase.BASE_WORK, Command(commands=['get_boundary_vacancies']))
+    dp.message.register(get_count_vacancies, StepsBase.BASE_WORK, Command(commands='get_count_vacancies'))
+    dp.message.register(base_answer)
 
     await dp.start_polling(bot)
 

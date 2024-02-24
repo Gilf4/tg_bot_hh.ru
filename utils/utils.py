@@ -1,5 +1,6 @@
 from collections import defaultdict
-from api.handler_api import get_areas_json, get_vacancies, send_requests, get_list_of_salaries
+from api.handler_api import get_areas_json, get_vacancies, send_requests
+from utils.formats import format_vacancies, format_skills
 import statistics
 
 
@@ -63,15 +64,15 @@ def smarted_get_vacancies(query: str, count_vacancies: int = 0, area: str = None
     return data
 
 
-def get_count_vacancies(query: str, area: str) -> int:
+def get_count_vacancies(query: str, area: str = None) -> int:
     """
     :param query: Запрос по вакансий (python developer, уборщик пятёрочки)
     :param area: Место поиска вакансий
     :return: Количество найденных вакансий
     """
 
-    data = smarted_get_vacancies(query, area=area)  # Неоптимальная реализация. Проблемы со скоростью -> оптимизация
-    return len(data)  # found - key
+    data = get_vacancies(query)
+    return data.get('found', 0)
 
 
 def extend_vacancies(list_vacancies: list) -> list:
@@ -112,31 +113,6 @@ def get_skills(extended_vacancies: list) -> dict:
     return skills
 
 
-def format_skills(skills: dict, count_vacancies: int) -> str:
-    """
-    :param skills: Словарь вида {name_skill: count}, где count - количество вакансий с таким скиллом
-    :param count_vacancies: Общее число вакансий
-    :return: Сообщение о стеке технологий
-    """
-
-    message_lines = ['Стек по вашему запросу:']
-    ind = 0
-
-    # Сортировка ключей по частоте встречаемости
-    name_skills = sorted(skills.keys(), key=lambda x: skills[x], reverse=True)
-
-    for skill in name_skills:
-        count_skill = skills[skill]
-        percent_of = round(count_skill / count_vacancies * 100, 2)
-        message_lines.append(f'{ind}) {skill} - {percent_of} % ({count_skill})')
-        ind += 1
-
-    if len(message_lines) == 1:
-        message_lines[0] = 'Информация не найдена'
-
-    return '\n'.join(message_lines)
-
-
 def get_format_skills(query: str) -> str:
     """
     Функция для получения форматированного сообщения о стеке технологий по запросу. Работает медлено!
@@ -144,48 +120,16 @@ def get_format_skills(query: str) -> str:
     :return: Форматированное сообщение о стеке технологий
     """
 
-    data = smarted_get_vacancies(query)[:20]
+    data = smarted_get_vacancies(query)[:40]
     extended_data = extend_vacancies(data)
     skills = get_skills(extended_data)
     message = format_skills(skills, len(extended_data))
     return message
 
 
-def format_salary(salary_dict):
-    if salary_dict:
-        salary_from = salary_dict.get('from', 'Не указана')
-        salary_to = salary_dict.get('to', 'Не указана')
-        salary_currency = salary_dict.get('currency', '')
-        # Преобразование None в "Не указана"
-        if salary_from is None:
-            salary_from = "Не указана"
-        if salary_to is None:
-            salary_to = "Не указана"
-        if salary_to == "Не указана":
-            return f"{salary_from} {salary_currency}"
-        else:
-            return f"{salary_from} - {salary_to} {salary_currency}"
-    else:
-        return "Зарплата не указана"
-
-
-def format_vacancies(text):
-    vacancies = get_vacancies(text, per_page=10)
-    if vacancies:
-        vacancies_text = ''
-        for item in vacancies.get('items', []):
-            salary_text = format_salary(item.get('salary'))
-            vacancies_text += f"Название вакансии: {item['name']}\n"
-            vacancies_text += f"Зарплата: {salary_text}\n"
-            vacancies_text += f"Компания: {item['employer']['name']}\n"
-            vacancies_text += f"Город: {item['area']['name']}\n"
-            vacancies_text += f"URL вакансии: {item['alternate_url']}\n\n"
-        if vacancies_text:
-            return vacancies_text
-        else:
-            return "По вашему запросу ничего не найдено."
-    else:
-        return "Ошибка при запросе"
+def get_format_vacancies(text):
+    vacancies = smarted_get_vacancies(text, count_vacancies=10)
+    return format_vacancies(vacancies)
 
 
 def calculate_average_salary(list_of_salaries):
