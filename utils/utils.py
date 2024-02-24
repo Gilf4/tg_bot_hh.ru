@@ -136,6 +136,20 @@ def format_skills(skills: dict, count_vacancies: int) -> str:
     return '\n'.join(message_lines)
 
 
+def get_format_skills(query: str) -> str:
+    """
+    Функция для получения форматированного сообщения о стеке технологий по запросу. Работает медлено!
+    :param query: Запрос
+    :return: Форматированное сообщение о стеке технологий
+    """
+
+    data = smarted_get_vacancies(query)
+    extended_data = extend_vacancies(data)
+    skills = get_skills(extended_data)
+    message = format_skills(skills, len(extended_data))
+    return message
+
+
 def format_salary(salary_dict):
     if salary_dict:
         salary_from = salary_dict.get('from', 'Не указана')
@@ -199,21 +213,32 @@ def sort_by_price_vacancies(list_vacancies: list, reverse=True) -> list:
     return list_vacancies_ru
 
 
+def get_experience() -> dict:
+    """
+    :return: Словарь вида {name_experience: id_experience}
+    """
+
+    return {'Нет опыта': 'noExperience',
+            'От 1 года до 3 лет': 'between1And3',
+            'От 3 до 6 лет': 'between3And6',
+            'Более 6 лет': 'moreThan6'}
+
+
 def main():
     """
     Функция для быстрого теста или проверок
     """
 
-    data = smarted_get_vacancies('Python')[:100]
-    # extended_data = extend_vacancies(data)
-    # skills = get_skills(extended_data)
-    # message = format_skills(skills, len(extended_data))
-    # print(message)
-    data = sort_by_price_vacancies(data)
-
+    data = smarted_get_vacancies('Уборщик')
+    # data = sort_by_price_vacancies(data)
+    s = dict()
     for el in data:
-        print(el['alternate_url'])
-        print(el['salary']['from'], el['salary']['to'])
+        # print(el['alternate_url'])
+        # print(el['salary']['from'], el['salary']['to'])
+        s[el['experience']['name']] = el['experience']['id']
+
+    print(s)
+    print(len(data))
 
 
 if __name__ == '__main__':
