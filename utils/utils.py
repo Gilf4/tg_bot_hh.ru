@@ -136,13 +136,13 @@ def calculate_average_salary(list_of_salaries):
     return statistics.median(list_of_salaries)
 
 
-def sort_by_price_vacancies(list_vacancies: list, reverse=True) -> list:
+def sort_by_price_vacancies(list_vacancies: list, key_sort: any, reverse=True) -> list:
     """
-    Функция сортирукт вакансии по цене (костыль 1 - ой). Если есть отрезок зарплат (от до), то сортирует
-    по верхней границе. Если зарплата не указана, то считаеться, что она равна
-    невозможному минимуму: -1. Вакансии с зарплатами в других волютах убираються
-    (костыль 2 - ой).
+    Функция сортирукт вакансии по параметру, который задаётся ключём сортировки (костыль 1 - ый,
+    - сортировка уже полученных данных, а не сортировка при запросе данных).
+    Вакансии с зарплатами в других волютах убираються (костыль 2 - ой, - отсутствие конвертации валюты)
     :param list_vacancies: Список вакансий для сортировка
+    :param key_sort: Функция, указывающая, параметр по которому будет производиться сортировка
     :param reverse: Если True - сортирует по не возрастанию (включено по дефолту). Если False - по не убыванию
     :return: Новый отсортированный список
     """
@@ -153,7 +153,7 @@ def sort_by_price_vacancies(list_vacancies: list, reverse=True) -> list:
         if list_vacancies[i]['salary']['currency'] == 'RUR':
             list_vacancies_ru.append(list_vacancies[i])
 
-    list_vacancies_ru.sort(key=lambda x: x['salary']['to'] or x['salary']['from'] or -1, reverse=reverse)
+    list_vacancies_ru.sort(key=key_sort, reverse=reverse)
 
     return list_vacancies_ru
 
