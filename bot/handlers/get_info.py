@@ -24,7 +24,7 @@ async def get_format_skills(massage: Message, state: FSMContext):
 async def get_boundary_vacancies(massage: Message, state: FSMContext):
     data = await state.get_data()
     vacancies = utils.smarted_get_vacancies(data['query'])
-    vacancies = utils.sort_by_key_vacancies(vacancies, key_sort=sort_by_salaries)
+    vacancies = utils.custom_sort_vacancies(vacancies, key_sort=sort_by_salaries)
     vacancies = [vacancies[0], vacancies[-1]]
 
     await massage.answer(format_vacancies(vacancies))

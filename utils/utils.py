@@ -2,6 +2,7 @@ from collections import defaultdict
 from api.handler_api import get_areas_json, get_vacancies, send_requests
 from utils.formats import format_vacancies, format_skills
 from utils.keys_sort import sort_by_salaries
+from utils.filters import FilterPresenceSalary
 import statistics
 
 
@@ -35,12 +36,16 @@ def get_areas() -> dict:
     return areas
 
 
-def smarted_get_vacancies(query: str, count_vacancies: int = 0, area: str = None) -> list:
+def smarted_get_vacancies(query: str, count_vacancies: int = 0, area: str = None, order_by: str = None,
+                          only_with_salary: bool = None, search_field: str = None) -> list:
     """
     Функция возвращает n - ое количество вакансий или максимум вакансий, который есть (может быть [ ]).
     :param query: Запрос по вакансий (python developer, уборщик пятёрочки)
     :param count_vacancies: Количестов запрашиваемых вакансий. Если нужны все, то можно ничего не указывать или указать 0
     :param area: Не реализована
+    :param order_by: Не реализована
+    :param only_with_salary: Не реализована
+    :param search_field: Не реализована
     :return: Список вакансий
     """
 
@@ -137,26 +142,44 @@ def calculate_average_salary(list_of_salaries):
     return statistics.median(list_of_salaries)
 
 
-def sort_by_key_vacancies(list_vacancies: list, key_sort: any, reverse=True) -> list:
+def custom_sort_vacancies(vacancies: list, key_sort: any, reverse=True) -> list:
     """
     Функция сортирукт вакансии по параметру, который задаётся ключём сортировки (костыль 1 - ый,
     - сортировка уже полученных данных, а не сортировка при запросе данных).
     Вакансии с зарплатами в других волютах убираються (костыль 2 - ой, - отсутствие конвертации валюты)
-    :param list_vacancies: Список вакансий для сортировка
+    :param vacancies: Список вакансий для сортировка
     :param key_sort: Функция, указывающая, параметр по которому будет производиться сортировка
     :param reverse: Если True - сортирует по не возрастанию (включено по дефолту). Если False - по не убыванию
     :return: Новый отсортированный список
     """
 
-    list_vacancies_ru = []
+    vacancies_ru = []
 
-    for i in range(len(list_vacancies)):  # Костыль для других волют
-        if list_vacancies[i]['salary']['currency'] == 'RUR':
-            list_vacancies_ru.append(list_vacancies[i])
+    # vacancies_ru = custom_filter_vacancies(vacancies, FilterСсurrency('RUR'))
 
-    list_vacancies_ru.sort(key=key_sort, reverse=reverse)
+    vacancies_ru.sort(key=key_sort, reverse=reverse)
 
-    return list_vacancies_ru
+    return vacancies_ru
+
+
+def custom_filter_vacancies(vacancies: list, *args) -> list:
+    """
+    Функция для фильтрации вакансий
+    :param vacancies: вакансии для вильтрации
+    :param args: совокупность фильтров для вакансий, переданных через запятую
+    :return: отфильтрованый список
+    """
+
+    filtered_vacancies = []
+
+    for vacancy in vacancies:
+        for my_filter in args:
+            if not my_filter.is_(vacancy):
+                break
+        else:
+            filtered_vacancies.append(vacancy)
+
+    return filtered_vacancies
 
 
 def get_experience() -> dict:
@@ -172,7 +195,9 @@ def get_experience() -> dict:
 
 def main():
     data = smarted_get_vacancies('Уборщик')
-    data = sort_by_key_vacancies(data, key_sort=sort_by_salaries)
+    data = custom_sort_vacancies(data, key_sort=sort_by_salaries)
+    data = custom_filter_vacancies(data, FilterPresenceSalary(4))
+
     for el in data:
         print(el['alternate_url'])
         print(el['salary']['from'], el['salary']['to'])

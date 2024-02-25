@@ -32,7 +32,7 @@ def get_vacancies(query, page=1, per_page=1):
         'per_page': per_page,
         'page': page,
         'search_field': 'name',
-        'only_with_salary': 'true'
+        # 'only_with_salary': 'true'
         # 'order_by': 'publication_time' <- сортирует по дате добавления компании
     }
     data = send_requests(url_get_vacancies, params)
