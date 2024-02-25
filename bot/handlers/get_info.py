@@ -1,6 +1,7 @@
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from utils import utils
+from utils.keys_sort import sort_by_salaries
 from utils.formats import format_vacancies
 
 
@@ -23,7 +24,7 @@ async def get_format_skills(massage: Message, state: FSMContext):
 async def get_boundary_vacancies(massage: Message, state: FSMContext):
     data = await state.get_data()
     vacancies = utils.smarted_get_vacancies(data['query'])
-    vacancies = utils.sort_by_price_vacancies(vacancies)
+    vacancies = utils.sort_by_key_vacancies(vacancies, key_sort=sort_by_salaries)
     vacancies = [vacancies[0], vacancies[-1]]
 
     await massage.answer(format_vacancies(vacancies))

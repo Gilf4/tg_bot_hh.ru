@@ -1,6 +1,7 @@
 from collections import defaultdict
 from api.handler_api import get_areas_json, get_vacancies, send_requests
 from utils.formats import format_vacancies, format_skills
+from utils.keys_sort import sort_by_salaries
 import statistics
 
 
@@ -136,7 +137,7 @@ def calculate_average_salary(list_of_salaries):
     return statistics.median(list_of_salaries)
 
 
-def sort_by_price_vacancies(list_vacancies: list, key_sort: any, reverse=True) -> list:
+def sort_by_key_vacancies(list_vacancies: list, key_sort: any, reverse=True) -> list:
     """
     Функция сортирукт вакансии по параметру, который задаётся ключём сортировки (костыль 1 - ый,
     - сортировка уже полученных данных, а не сортировка при запросе данных).
@@ -171,7 +172,7 @@ def get_experience() -> dict:
 
 def main():
     data = smarted_get_vacancies('Уборщик')
-    data = sort_by_price_vacancies(data)
+    data = sort_by_key_vacancies(data, key_sort=sort_by_salaries)
     for el in data:
         print(el['alternate_url'])
         print(el['salary']['from'], el['salary']['to'])
