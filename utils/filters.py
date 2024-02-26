@@ -37,3 +37,16 @@ class FilterPresenceSalary:
 
         print('Ты что-то перепутал')
         print(0 / 0)
+
+
+class FilterCurrency:
+    def __init__(self, currency: str):
+        self.currency = currency
+
+    def is_(self, vacancy: any) -> bool:
+        currency = vacancy.get('salary')
+
+        if currency:
+            return currency.get('currency') == self.currency
+
+        return False

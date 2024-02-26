@@ -4,7 +4,7 @@ from utils.filters import FilterPresenceSalary
 
 
 def main1():
-    data = smarted_get_vacancies('ML')
+    data = smarted_get_vacancies('Уборщик')
     # data = custom_filter_vacancies(data, FilterPresenceSalary(4))
     data = custom_sort_vacancies(data, key_sort=sort_by_salaries)
 

@@ -2,7 +2,7 @@ from collections import defaultdict
 from api.handler_api import get_areas_json, get_vacancies, send_requests
 from utils.formats import format_vacancies, format_skills
 from utils.keys_sort import sort_by_salaries
-from utils.filters import FilterPresenceSalary
+from utils.filters import FilterPresenceSalary, FilterCurrency
 import statistics
 
 
@@ -153,9 +153,7 @@ def custom_sort_vacancies(vacancies: list, key_sort: any, reverse=True) -> list:
     :return: Новый отсортированный список
     """
 
-    vacancies_ru = []
-
-    # vacancies_ru = custom_filter_vacancies(vacancies, FilterСсurrency('RUR'))
+    vacancies_ru = custom_filter_vacancies(vacancies, FilterCurrency('RUR'))
 
     vacancies_ru.sort(key=key_sort, reverse=reverse)
 
