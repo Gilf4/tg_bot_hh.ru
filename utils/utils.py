@@ -3,6 +3,7 @@ from api.handler_api import get_areas_json, get_vacancies, send_requests
 from utils.formats import format_vacancies, format_skills
 from utils.keys_sort import sort_by_salaries
 from utils.filters import FilterPresenceSalary, FilterCurrency
+from utils.params_get_vacancies import Params
 import statistics
 
 
@@ -36,25 +37,22 @@ def get_areas() -> dict:
     return areas
 
 
-def smarted_get_vacancies(query: str, count_vacancies: int = 0, area: str = None, order_by: str = None,
-                          only_with_salary: bool = None, search_field: str = None) -> list:
+def smarted_get_vacancies(params: dict, count_vacancies: int = 0) -> list:
     """
     Функция возвращает n - ое количество вакансий или максимум вакансий, который есть (может быть [ ]).
-    :param query: Запрос по вакансий (python developer, уборщик пятёрочки)
     :param count_vacancies: Количестов запрашиваемых вакансий. Если нужны все, то можно ничего не указывать или указать 0
-    :param area: Не реализована
-    :param order_by: Не реализована
-    :param only_with_salary: Не реализована
-    :param search_field: Не реализована
+    :param params: Параметры для получения вакансии в виде словаря. Для приготовленя рекомундуеться params_get_vacancies
     :return: Список вакансий
     """
 
     page = -1  # Сдвиг для красоты (первая страница - 0)
     data = []  # Список вакансий
+    params[Params.key_per_page] = 100  # Устоновка максимального количество получаемых вакансий
 
     while len(data) < count_vacancies or not count_vacancies:
         page += 1
-        vacancies = get_vacancies(query, page=page, per_page=100)
+        params[Params.key_page] = page
+        vacancies = get_vacancies(params)
 
         if vacancies and vacancies['items']:
             data.extend(vacancies['items'])
@@ -70,14 +68,13 @@ def smarted_get_vacancies(query: str, count_vacancies: int = 0, area: str = None
     return data
 
 
-def get_count_vacancies(query: str, area: str = None) -> int:
+def get_count_vacancies(params: dict) -> int:
     """
-    :param query: Запрос по вакансий (python developer, уборщик пятёрочки)
-    :param area: Место поиска вакансий
+    :param params: Параметры для получения вакансии в виде словаря. Для приготовленя рекомундуеться params_get_vacancies
     :return: Количество найденных вакансий
     """
 
-    data = get_vacancies(query)
+    data = get_vacancies(params)
     return data.get('found', 0)
 
 
@@ -119,22 +116,27 @@ def get_skills(extended_vacancies: list) -> dict:
     return skills
 
 
-def get_format_skills(query: str) -> str:
+def get_format_skills(params: dict) -> str:
     """
     Функция для получения форматированного сообщения о стеке технологий по запросу. Работает медлено!
-    :param query: Запрос
+    :param params: Параметры для получения вакансии в виде словаря. Для приготовленя рекомундуеться params_get_vacancies
     :return: Форматированное сообщение о стеке технологий
     """
 
-    data = smarted_get_vacancies(query)[:40]
+    data = smarted_get_vacancies(params)[:40]
     extended_data = extend_vacancies(data)
     skills = get_skills(extended_data)
     message = format_skills(skills, len(extended_data))
     return message
 
 
-def get_format_vacancies(text):
-    vacancies = smarted_get_vacancies(text, count_vacancies=10)
+def get_format_vacancies(params: dict):
+    """
+    :param params: Параметры для получения вакансии в виде словаря. Для приготовленя рекомундуеться params_get_vacancies
+    :return:
+    """
+
+    vacancies = smarted_get_vacancies(params, count_vacancies=10)
     return format_vacancies(vacancies)
 
 
