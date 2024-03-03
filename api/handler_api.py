@@ -2,7 +2,7 @@ import requests
 from api.url_requests import *
 
 
-def send_requests(url: str, par: dict = None) -> any:
+async def send_requests(url: str, par: dict = None) -> any:
     """
     Функция для безопасного отправления запроса
     :param url: Ссылка на api
@@ -18,54 +18,27 @@ def send_requests(url: str, par: dict = None) -> any:
         return data
 
 
-def get_areas_json() -> any:
+async def get_areas_json() -> any:
     """
+    Функция делает запрос для получения мест (https://api.hh.ru/areas)
     :return: словарь мест в виде json'а
     """
 
-    return send_requests(url_get_areas)
+    return await send_requests(url_get_areas)
 
 
-def get_vacancies(params: dict) -> any:
-    return send_requests(url_get_vacancies, params)
+async def get_vacancies(params: dict) -> any:
+    """
+    Функция делает запрос для получения вакансий (https://api.hh.ru/vacancies)
+    :param params: Словарь параметров для запроса
+    :return: словарь в виде json'а
+    """
+
+    return await send_requests(url_get_vacancies, params)
 
 
-def get_list_of_salaries(language, level, region_named):
-    params = {
-        'text': f'{language} {level}',
-        'per_page': 100,
-        'page': 0,
-        "area": region_named,
-        'only_with_salary': True
-    }
-    salaries = []
-
-    while True:
-        response = requests.get(url_get_vacancies, params=params)
-        data = response.json()
-        for item in data['items']:
-            salary = item['salary']
-            if salary:
-                from_value = salary.get('from')
-                to_value = salary.get('to')
-                if from_value and to_value:
-                    salaries.append((from_value + to_value) / 2)
-                elif from_value:
-                    salaries.append(from_value)
-                elif to_value:
-                    salaries.append(to_value)
-
-        if data['pages'] > params['page'] + 1:
-            params['page'] += 1
-        else:
-            break
-
-    return salaries
-
-
-def main():
-    data = get_areas_json()
-    print(data)
+async def main():
+    data = await get_areas_json()
     print(data.get('Нижний Новгород'))
 
 

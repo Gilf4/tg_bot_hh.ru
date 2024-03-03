@@ -4,10 +4,9 @@ from utils.formats import format_vacancies, format_skills
 from utils.keys_sort import sort_by_salaries
 from utils.filters import FilterPresenceSalary, FilterCurrency
 from utils.params_get_vacancies import Params
-import statistics
 
 
-def json_areas_to_dict(areas_json: any, areas: dict) -> None:
+async def json_areas_to_dict(areas_json: any, areas: dict) -> None:
     """
     Функциа рекурсивного парсинка json'а мест
     :param areas_json: json мест
@@ -18,17 +17,17 @@ def json_areas_to_dict(areas_json: any, areas: dict) -> None:
         areas[area['name']] = area['id']
 
         if area.get('areas'):
-            json_areas_to_dict(area['areas'], areas)
+            await json_areas_to_dict(area['areas'], areas)
 
 
-def get_areas() -> dict:
+async def get_areas() -> dict:
     """
     :return: Cловарь мест в виде {area_lower: number} и {number: area}. Где number - индефикатор места
     """
 
     areas_tree = get_areas_json()
     areas = {}
-    json_areas_to_dict(areas_tree, areas)
+    await json_areas_to_dict(areas_tree, areas)
 
     for name in list(areas):
         areas[name.lower()] = areas[name]
@@ -37,7 +36,7 @@ def get_areas() -> dict:
     return areas
 
 
-def smarted_get_vacancies(params: dict, count_vacancies: int = 0) -> list:
+async def smarted_get_vacancies(params: dict, count_vacancies: int = 0) -> list:
     """
     Функция возвращает n - ое количество вакансий или максимум вакансий, который есть (может быть [ ]).
     :param count_vacancies: Количестов запрашиваемых вакансий. Если нужны все, то можно ничего не указывать или указать 0
@@ -52,7 +51,7 @@ def smarted_get_vacancies(params: dict, count_vacancies: int = 0) -> list:
     while len(data) < count_vacancies or not count_vacancies:
         page += 1
         params[Params.key_page] = page
-        vacancies = get_vacancies(params)
+        vacancies = await get_vacancies(params)
 
         if vacancies and vacancies['items']:
             data.extend(vacancies['items'])
@@ -68,17 +67,17 @@ def smarted_get_vacancies(params: dict, count_vacancies: int = 0) -> list:
     return data
 
 
-def get_count_vacancies(params: dict) -> int:
+async def get_count_vacancies(params: dict) -> int:
     """
     :param params: Параметры для получения вакансии в виде словаря. Для приготовленя рекомундуеться params_get_vacancies
     :return: Количество найденных вакансий
     """
 
-    data = get_vacancies(params)
+    data = await get_vacancies(params)
     return data.get('found', 0)
 
 
-def extend_vacancies(list_vacancies: list) -> list:
+async def extend_vacancies(list_vacancies: list) -> list:
     """
     Функция расширяет информацию о вакансиях. Работает очень медлено, 1 - 4 с. одна вакансия!
     :param list_vacancies: список вакансий для расширения. Предпочтительнее, взятых из smarted_get_vacancies
@@ -91,7 +90,7 @@ def extend_vacancies(list_vacancies: list) -> list:
         url = vacancy.get('url')  # Получение ссылки на данные со страницы вакансии
 
         if url:
-            vacancy = send_requests(url)
+            vacancy = await send_requests(url)
         else:
             continue
 
@@ -101,7 +100,7 @@ def extend_vacancies(list_vacancies: list) -> list:
     return data
 
 
-def get_skills(extended_vacancies: list) -> dict:
+async def get_skills(extended_vacancies: list) -> dict:
     """
     :param extended_vacancies: Список расширенных вакансий
     :return: Словарь вида {name_skill: count}, где count - количество вакансий с таким скиллом
@@ -116,35 +115,65 @@ def get_skills(extended_vacancies: list) -> dict:
     return skills
 
 
-def get_format_skills(params: dict) -> str:
+async def get_format_skills(params: dict) -> str:
     """
     Функция для получения форматированного сообщения о стеке технологий по запросу. Работает медлено!
     :param params: Параметры для получения вакансии в виде словаря. Для приготовленя рекомундуеться params_get_vacancies
     :return: Форматированное сообщение о стеке технологий
     """
 
-    data = smarted_get_vacancies(params)[:40]
-    extended_data = extend_vacancies(data)
-    skills = get_skills(extended_data)
+    data = await smarted_get_vacancies(params)
+    data = data[:40]
+    extended_data = await extend_vacancies(data)
+    skills = await get_skills(extended_data)
     message = format_skills(skills, len(extended_data))
     return message
 
 
-def get_format_vacancies(params: dict):
+async def get_format_vacancies(params: dict):
     """
     :param params: Параметры для получения вакансии в виде словаря. Для приготовленя рекомундуеться params_get_vacancies
     :return:
     """
 
-    vacancies = smarted_get_vacancies(params, count_vacancies=10)
+    vacancies = await smarted_get_vacancies(params, count_vacancies=10)
     return format_vacancies(vacancies)
 
 
-def calculate_average_salary(list_of_salaries):
-    return statistics.median(list_of_salaries)
+async def calculate_median(data: list) -> float | bool:
+    """
+    Return the median (middle value) of numeric data.
+
+        When the number of data points is odd, return the middle data point.
+        When the number of data points is even, the median is interpolated by
+        taking the average of the two middle values:
+    """
+
+    data = sorted(data)
+    n = len(data)
+    if n == 0:
+        return False
+    if n % 2 == 1:
+        return data[n // 2]
+    else:
+        i = n // 2
+        return (data[i - 1] + data[i]) / 2
 
 
-def custom_sort_vacancies(vacancies: list, key_sort: any, reverse=True) -> list:
+async def calculate_average(data: list) -> float | bool:
+    """
+    Функция для счёта среднего значения по списку элементов
+    :param data: Список элементов
+    :return: Среднее значение
+    """
+
+    if data:
+        return round(sum(data) / len(data), 2)
+
+    return False
+
+
+async def custom_sort_vacancies(vacancies: list, key_sort: any, reverse=True) -> list:
     """
     Функция сортирукт вакансии по параметру, который задаётся ключём сортировки (костыль 1 - ый,
     - сортировка уже полученных данных, а не сортировка при запросе данных).
@@ -155,14 +184,14 @@ def custom_sort_vacancies(vacancies: list, key_sort: any, reverse=True) -> list:
     :return: Новый отсортированный список
     """
 
-    vacancies_ru = custom_filter_vacancies(vacancies, FilterCurrency('RUR'))
+    vacancies_ru = await custom_filter_vacancies(vacancies, FilterCurrency('RUR'))
 
     vacancies_ru.sort(key=key_sort, reverse=reverse)
 
     return vacancies_ru
 
 
-def custom_filter_vacancies(vacancies: list, *args) -> list:
+async def custom_filter_vacancies(vacancies: list, *args) -> list:
     """
     Функция для фильтрации вакансий
     :param vacancies: вакансии для вильтрации
@@ -182,7 +211,30 @@ def custom_filter_vacancies(vacancies: list, *args) -> list:
     return filtered_vacancies
 
 
-def get_experience() -> dict:
+async def get_salaries(params: dict) -> list:
+    salaries = []
+    vacancies = await smarted_get_vacancies(params)
+
+    if not vacancies:
+        return []
+
+    for vacancy in vacancies:
+        salary = vacancy.get('salary')
+
+        if salary:
+            from_value = salary.get('from')
+            to_value = salary.get('to')
+            if from_value and to_value:
+                salaries.append((from_value + to_value) / 2)
+            elif from_value:
+                salaries.append(from_value)
+            elif to_value:
+                salaries.append(to_value)
+
+    return salaries
+
+
+async def get_experience() -> dict:
     """
     :return: Словарь вида {name_experience: id_experience}
     """
@@ -193,10 +245,10 @@ def get_experience() -> dict:
             'Более 6 лет': 'moreThan6'}
 
 
-def main():
-    data = smarted_get_vacancies('Уборщик')
-    data = custom_sort_vacancies(data, key_sort=sort_by_salaries)
-    data = custom_filter_vacancies(data, FilterPresenceSalary(4))
+async def main():
+    data = await smarted_get_vacancies({'text': 'Уборщик'})
+    data = await custom_sort_vacancies(data, key_sort=sort_by_salaries)
+    data = await custom_filter_vacancies(data, FilterPresenceSalary(4))
 
     for el in data:
         print(el['alternate_url'])
