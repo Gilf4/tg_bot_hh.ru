@@ -13,9 +13,7 @@ async def stop_bot(bot: Bot):
 
 async def started_message(message: Message):
     text_answer = f'''
-        Привет {message.from_user.first_name}!
-        
-        Ты запустил бот для анализа рынка труда на прощадке hh.ru
+        Привет {message.from_user.first_name}!\nТы запустил бот для анализа рынка труда на прощадке hh.ru
     '''
     
     await message.answer(text_answer)
