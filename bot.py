@@ -3,12 +3,15 @@ import logging
 
 from aiogram import Bot, Dispatcher
 from aiogram.filters import Command, CommandStart
+from aiogram import F
 from bot.config import Bot_Token
 
 from bot.handlers.base_handlers import start_bot, stop_bot, started_message, base_answer
 from bot.handlers.save_info import change_query, update_query
 from bot.handlers.get_info import (get_query, get_vacancies, get_format_skills, get_boundary_vacancies,
                                    get_count_vacancies)
+from bot.handlers.settings_hendlers import get_setting
+from bot.handlers.callback_handlers import get_callback_filter
 from bot.states.states_base import StepsBase
 
 
@@ -32,6 +35,8 @@ async def start():
     dp.message.register(get_boundary_vacancies, StepsBase.BASE_WORK, Command(commands=['get_boundary_vacancies']))
     dp.message.register(get_count_vacancies, StepsBase.BASE_WORK, Command(commands='get_count_vacancies'))
 
+    dp.message.register(get_setting, StepsBase.BASE_WORK, F.text == 'Настройки')
+    dp.callback_query.register(get_callback_filter)
     dp.message.register(base_answer)
 
     try:

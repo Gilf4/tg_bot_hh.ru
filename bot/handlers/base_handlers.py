@@ -1,6 +1,7 @@
 from aiogram import Bot
 from aiogram.types import Message
 from bot.commands_buttons.set_commands import set_default_commands
+from bot.buttons_markup.reply_markup import base_markup
 
 
 async def start_bot(bot: Bot):
@@ -16,7 +17,7 @@ async def started_message(message: Message):
         Привет {message.from_user.first_name}!\nТы запустил бот для анализа рынка труда на прощадке hh.ru
     '''
     
-    await message.answer(text_answer)
+    await message.answer(text_answer, reply_markup=base_markup)
 
 
 async def base_answer(message: Message):
