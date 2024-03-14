@@ -1,6 +1,6 @@
 from aiogram import Bot
 from aiogram.types import Message
-from bot.commands_buttons.set_commands import set_default_commands
+from bot.commands.set_commands import set_default_commands
 from bot.buttons_markup.reply_markup import base_markup
 
 
