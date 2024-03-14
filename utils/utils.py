@@ -122,11 +122,13 @@ async def get_format_skills(params: dict) -> str:
     :return: Форматированное сообщение о стеке технологий
     """
 
-    data = await smarted_get_vacancies(params)
-    data = data[:40]
+    count = 10
+    data = await smarted_get_vacancies(params, count_vacancies=count)
+    data = data[:count]
     extended_data = await extend_vacancies(data)
     skills = await get_skills(extended_data)
     message = format_skills(skills, len(extended_data))
+
     return message
 
 
@@ -136,7 +138,7 @@ async def get_format_vacancies(params: dict):
     :return:
     """
 
-    vacancies = await smarted_get_vacancies(params, count_vacancies=10)
+    vacancies = await smarted_get_vacancies(params, count_vacancies=5)
     return format_vacancies(vacancies)
 
 
