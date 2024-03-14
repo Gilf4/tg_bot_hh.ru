@@ -3,7 +3,7 @@ from api.handler_api import get_areas_json, get_vacancies, send_requests
 from utils.formats import format_vacancies, format_skills
 from utils.keys_sort import sort_by_salaries
 from utils.filters import FilterPresenceSalary, FilterCurrency
-from utils.params_get_vacancies import Params
+from utils.params import P
 
 
 async def json_areas_to_dict(areas_json: any, areas: dict) -> None:
@@ -25,7 +25,7 @@ async def get_areas() -> dict:
     :return: Cловарь мест в виде {area_lower: number} и {number: area}. Где number - индефикатор места
     """
 
-    areas_tree = get_areas_json()
+    areas_tree = await get_areas_json()
     areas = {}
     await json_areas_to_dict(areas_tree, areas)
 
@@ -46,11 +46,11 @@ async def smarted_get_vacancies(params: dict, count_vacancies: int = 0) -> list:
 
     page = -1  # Сдвиг для красоты (первая страница - 0)
     data = []  # Список вакансий
-    params[Params.key_per_page] = 100  # Устоновка максимального количество получаемых вакансий
+    params[P.per_page] = 100  # Устоновка максимального количество получаемых вакансий
 
     while len(data) < count_vacancies or not count_vacancies:
         page += 1
-        params[Params.key_page] = page
+        params[P.page] = page
         vacancies = await get_vacancies(params)
 
         if vacancies and vacancies['items']:
@@ -74,7 +74,12 @@ async def get_count_vacancies(params: dict) -> int:
     """
 
     data = await get_vacancies(params)
-    return data.get('found', 0)
+
+    if data:
+        return data.get('found', 0)
+
+    print('data - ', data)
+    return -1
 
 
 async def extend_vacancies(list_vacancies: list) -> list:

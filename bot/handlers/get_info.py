@@ -3,7 +3,7 @@ from aiogram.fsm.context import FSMContext
 from utils import utils
 from utils.keys_sort import sort_by_salaries
 from utils.formats import format_vacancies
-from utils.params_get_vacancies import Params
+from utils.params import P
 
 
 async def get_query(massage: Message, state: FSMContext):
@@ -11,7 +11,7 @@ async def get_query(massage: Message, state: FSMContext):
     text = 'Вы еще не ввели запрос. Для этого воспользуйтесь /Changing_request'
     print(data)
 
-    await massage.answer(data.get(Params.key_text, text))
+    await massage.answer(data.get(P.text, text))
 
 
 async def get_vacancies(massage: Message, state: FSMContext):

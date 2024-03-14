@@ -3,7 +3,7 @@ from aiogram.types import CallbackQuery
 from utils import utils
 from utils.keys_sort import sort_by_salaries
 from utils.formats import format_vacancies
-from utils.params_get_vacancies import Params
+from utils.params import P
 
 
 async def get_callback_query(call: CallbackQuery, state: FSMContext):
@@ -11,7 +11,7 @@ async def get_callback_query(call: CallbackQuery, state: FSMContext):
     text = 'Вы еще не ввели запрос. Для этого воспользуйтесь /Changing_request'
     print(data)
 
-    await call.answer(data.get(Params.key_text, text))
+    await call.answer(data.get(P.text, text))
 
 
 async def get_callback_vacancies(call: CallbackQuery, state: FSMContext):
@@ -21,8 +21,7 @@ async def get_callback_vacancies(call: CallbackQuery, state: FSMContext):
 
 async def get_callback_format_skills(call: CallbackQuery, state: FSMContext):
     data = await state.get_data()
-    print('Step 1 ----------------')
-    print(data)
+
     await call.message.answer('Данные собираються...')
     await call.message.answer(await utils.get_format_skills(data))
 
