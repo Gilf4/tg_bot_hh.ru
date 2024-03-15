@@ -16,9 +16,10 @@ async def save_query(message: Message, state: FSMContext):
 
     c = ClientManager()
 
-    if await c.init(state) and c.save_query(message.text):
+    if await c.init(state) and c.change_query(message.text):
+        await c.save()
+        await c.set_state(StepsBase.BASE_WORK)
         await message.answer(text_answer)
-        await state.set_state(StepsBase.BASE_WORK)
     else:
         await message.answer('Что-то пошло не так. Попробуйте ещё раз')
 
@@ -30,9 +31,10 @@ async def save_area(message: Message, state: FSMContext):
 
     c = ClientManager()
 
-    if await c.init(state) and c.save_area(message.text):
+    if await c.init(state) and c.change_area(message.text):
+        await c.save()
+        await c.set_state(StepsBase.BASE_WORK)
         await message.answer(text_answer)
-        await state.set_state(StepsBase.BASE_WORK)
     else:
         await message.answer('Что-то пошло не так. Попробуйте ещё раз')
 
@@ -44,8 +46,9 @@ async def save_salary(message: Message, state: FSMContext):
 
     c = ClientManager()
 
-    if await c.init(state) and c.save_salary(message.text):
-        await message.answer(text_answer)
+    if await c.init(state) and c.change_salary(message.text):
+        await c.save()
         await state.set_state(StepsBase.BASE_WORK)
+        await message.answer(text_answer)
     else:
         await message.answer('Что-то пошло не так. Попробуйте ещё раз')

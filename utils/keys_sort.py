@@ -1,3 +1,5 @@
+from utils.params import P
+
 
 def sort_by_salaries(vacancy: any) -> float:
     """
@@ -8,5 +10,8 @@ def sort_by_salaries(vacancy: any) -> float:
     :return: Параметр сортировки
     """
 
-    salary = vacancy.get('salary')
-    return salary['to'] or salary['from'] or -1
+    salary = vacancy.get(P.salary)
+    if salary:
+        return salary.get('to') or salary.get('from') or -1
+
+    return -1

@@ -46,6 +46,9 @@ class P:
     base: str = 'base'
     id_profile: str = 'id_profile'
 
+    found: str = 'found'
+    url: str = 'url'
+    key_skills: str = 'key_skills'
 
 def main():
     """

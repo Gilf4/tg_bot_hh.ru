@@ -1,12 +1,18 @@
-from utils.utils import smarted_get_vacancies, custom_sort_vacancies, custom_filter_vacancies
+import asyncio
+from utils.utils import smarted_get_vacancies, custom_sort_vacancies
 from utils.keys_sort import sort_by_salaries
-from utils.filters import FilterPresenceSalary
+from utils.managers import ClientManager
+from utils.get_info import get_areas
 
 
-def main1():
-    data = smarted_get_vacancies('Уборщик')
+async def main1():
+    c = ClientManager()
+    c.set_base_structure()
+    c.change_query('Уборщик')
+
+    data = await smarted_get_vacancies(c)
     # data = custom_filter_vacancies(data, FilterPresenceSalary(4))
-    data = custom_sort_vacancies(data, key_sort=sort_by_salaries)
+    data = await custom_sort_vacancies(data, key_sort=sort_by_salaries)
 
     for el in data:
         print(el['alternate_url'])
@@ -18,4 +24,4 @@ def main1():
 
 
 if __name__ == '__main__':
-    main1()
+    asyncio.run(main1())

@@ -1,4 +1,3 @@
-from aiogram import Bot
 from aiogram.types import CallbackQuery
 from bot.buttons_markup.inline_markup import filters, sorting, search_parameters
 

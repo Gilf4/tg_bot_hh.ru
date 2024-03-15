@@ -2,56 +2,27 @@ from collections import defaultdict
 from api.handler_api import get_areas_json, get_vacancies, send_requests
 from utils.formats import format_vacancies, format_skills
 from utils.keys_sort import sort_by_salaries
-from utils.filters import FilterPresenceSalary, FilterCurrency
+from utils.filters import FilterPresenceSalary
+from utils.managers import ClientManager
 from utils.params import P
 
 
-async def json_areas_to_dict(areas_json: any, areas: dict) -> None:
-    """
-    Функциа рекурсивного парсинка json'а мест
-    :param areas_json: json мест
-    :param areas: Словарь куда будут складываться найденные значения
-    """
-
-    for area in areas_json:
-        areas[area['name']] = area['id']
-
-        if area.get('areas'):
-            await json_areas_to_dict(area['areas'], areas)
-
-
-async def get_areas() -> dict:
-    """
-    :return: Cловарь мест в виде {area_lower: number} и {number: area}. Где number - индефикатор места
-    """
-
-    areas_tree = await get_areas_json()
-    areas = {}
-    await json_areas_to_dict(areas_tree, areas)
-
-    for name in list(areas):
-        areas[name.lower()] = areas[name]
-        areas[areas[name]] = name
-
-    return areas
-
-
-async def smarted_get_vacancies(params: dict, count_vacancies: int = 0) -> list:
+async def smarted_get_vacancies(c: ClientManager, count_vacancies: int = 0) -> list:
     """
     Функция возвращает n - ое количество вакансий или максимум вакансий, который есть (может быть [ ]).
     :param count_vacancies: Количестов запрашиваемых вакансий. Если нужны все, то можно ничего не указывать или указать 0
-    :param params: Параметры для получения вакансии в виде словаря. Для приготовленя рекомундуеться params_get_vacancies
+    :param c: Параметры для получения вакансии в виде словаря. Для приготовленя рекомундуеться params_get_vacancies
     :return: Список вакансий
     """
 
     page = -1  # Сдвиг для красоты (первая страница - 0)
     data = []  # Список вакансий
-    params[P.per_page] = 100  # Устоновка максимального количество получаемых вакансий
+    c.change_per_page(100)  # Устоновка максимального количество получаемых вакансий
 
     while len(data) < count_vacancies or not count_vacancies:
         page += 1
-        params[P.page] = page
-        vacancies = await get_vacancies(params)
+        c.change_page(page)
+        vacancies = await get_vacancies(c.get_request_parameters())
 
         if vacancies and vacancies['items']:
             data.extend(vacancies['items'])
@@ -67,18 +38,17 @@ async def smarted_get_vacancies(params: dict, count_vacancies: int = 0) -> list:
     return data
 
 
-async def get_count_vacancies(params: dict) -> int:
+async def get_count_vacancies(c: ClientManager) -> int:
     """
-    :param params: Параметры для получения вакансии в виде словаря. Для приготовленя рекомундуеться params_get_vacancies
+    :param c: Параметры для получения вакансии в виде словаря. Для приготовленя рекомундуеться params_get_vacancies
     :return: Количество найденных вакансий
     """
 
-    data = await get_vacancies(params)
+    data = await get_vacancies(c.get_request_parameters())
 
     if data:
-        return data.get('found', 0)
+        return data.get(P.found, 0)
 
-    print('data - ', data)
     return -1
 
 
@@ -92,7 +62,7 @@ async def extend_vacancies(list_vacancies: list) -> list:
     data = []
 
     for vacancy in list_vacancies:
-        url = vacancy.get('url')  # Получение ссылки на данные со страницы вакансии
+        url = vacancy.get(P.url)  # Получение ссылки на данные со страницы вакансии
 
         if url:
             vacancy = await send_requests(url)
@@ -114,21 +84,21 @@ async def get_skills(extended_vacancies: list) -> dict:
     skills = defaultdict(int)
 
     for vacancy in extended_vacancies:
-        for skill in vacancy.get('key_skills', []):
-            skills[skill['name']] += 1
+        for skill in vacancy.get(P.key_skills, []):
+            skills[skill[P.name]] += 1
 
     return skills
 
 
-async def get_format_skills(params: dict) -> str:
+async def get_format_skills(c: ClientManager) -> str:
     """
     Функция для получения форматированного сообщения о стеке технологий по запросу. Работает медлено!
-    :param params: Параметры для получения вакансии в виде словаря. Для приготовленя рекомундуеться params_get_vacancies
+    :param c: Параметры для получения вакансии в виде ClientManager
     :return: Форматированное сообщение о стеке технологий
     """
 
     count = 10
-    data = await smarted_get_vacancies(params, count_vacancies=count)
+    data = await smarted_get_vacancies(c, count_vacancies=count)
     data = data[:count]
     extended_data = await extend_vacancies(data)
     skills = await get_skills(extended_data)
@@ -137,13 +107,13 @@ async def get_format_skills(params: dict) -> str:
     return message
 
 
-async def get_format_vacancies(params: dict):
+async def get_format_vacancies(c: ClientManager):
     """
-    :param params: Параметры для получения вакансии в виде словаря. Для приготовленя рекомундуеться params_get_vacancies
+    :param c: Параметры для получения вакансии в виде ClientManager
     :return:
     """
 
-    vacancies = await smarted_get_vacancies(params, count_vacancies=5)
+    vacancies = await smarted_get_vacancies(c, count_vacancies=5)
     return format_vacancies(vacancies)
 
 
@@ -184,18 +154,15 @@ async def custom_sort_vacancies(vacancies: list, key_sort: any, reverse=True) ->
     """
     Функция сортирукт вакансии по параметру, который задаётся ключём сортировки (костыль 1 - ый,
     - сортировка уже полученных данных, а не сортировка при запросе данных).
-    Вакансии с зарплатами в других волютах убираються (костыль 2 - ой, - отсутствие конвертации валюты)
+    (костыль 2 - ой, - отсутствие конвертации валюты)
     :param vacancies: Список вакансий для сортировка
     :param key_sort: Функция, указывающая, параметр по которому будет производиться сортировка
     :param reverse: Если True - сортирует по не возрастанию (включено по дефолту). Если False - по не убыванию
     :return: Новый отсортированный список
     """
 
-    vacancies_ru = await custom_filter_vacancies(vacancies, FilterCurrency('RUR'))
-
-    vacancies_ru.sort(key=key_sort, reverse=reverse)
-
-    return vacancies_ru
+    vacancies.sort(key=key_sort, reverse=reverse)
+    return vacancies
 
 
 async def custom_filter_vacancies(vacancies: list, *args) -> list:
@@ -218,9 +185,9 @@ async def custom_filter_vacancies(vacancies: list, *args) -> list:
     return filtered_vacancies
 
 
-async def get_salaries(params: dict) -> list:
+async def get_salaries(c: ClientManager) -> list:
     salaries = []
-    vacancies = await smarted_get_vacancies(params)
+    vacancies = await smarted_get_vacancies(c)
 
     if not vacancies:
         return []
@@ -253,7 +220,11 @@ async def get_experience() -> dict:
 
 
 async def main():
-    data = await smarted_get_vacancies({'text': 'Уборщик'})
+    c = ClientManager()
+    c.set_base_structure()
+    c.change_query('Уборщик')
+
+    data = await smarted_get_vacancies(c.get_request_parameters())
     data = await custom_sort_vacancies(data, key_sort=sort_by_salaries)
     data = await custom_filter_vacancies(data, FilterPresenceSalary(4))
 
