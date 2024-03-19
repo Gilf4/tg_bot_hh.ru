@@ -1,3 +1,5 @@
+from utils.params import P
+
 
 class FilterPresenceSalary:
     def __init__(self, mode: int = 3):
@@ -50,3 +52,53 @@ class FilterCurrency:
             return currency.get('currency') == self.currency
 
         return False
+
+
+class FilterSalaryFrom:
+    def __init__(self, salary_from: int):
+        """
+        :param salary_from: запрлата
+        """
+
+        self.salary_from = salary_from
+
+    def is_(self, vacancy: any) -> bool:
+        salary = vacancy.get('salary')
+
+        if not salary:
+            return False
+
+        salary_from, salary_to = vacancy.get('from'), salary.get('to')
+
+        if salary_to:
+            if self.salary_from < salary_to:
+                return True
+        elif salary_from and not salary_to:
+            return True
+
+        return False
+
+
+class FilterSalaryTo:
+    def __init__(self, salary_to: int):
+        """
+        :param salary_to: запрлата
+        """
+
+        self.salary_to = salary_to
+
+    def is_(self, vacancy: any) -> bool:
+        salary = vacancy.get('salary')
+
+        if not salary:
+            return True
+
+        salary_from, salary_to = vacancy.get('from'), salary.get('to')
+
+        if salary_to:
+            if self.salary_to < salary_to:
+                return False
+        elif salary_from and not salary_to:
+            return False
+
+        return True

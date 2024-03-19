@@ -7,14 +7,15 @@ from aiogram import F
 from bot.config import Bot_Token
 
 from bot.handlers.base_handlers import start_bot, stop_bot, started_message, base_answer
-from bot.handlers.save_info import change_query, save_query, save_area
-from bot.handlers.get_info import (get_query, get_vacancies, get_format_skills, get_boundary_vacancies,
+from bot.handlers.save_info import change_query, save_query, save_area, save_salary
+from bot.handlers.get_info import (get_query, get_boundary_vacancies,
                                    get_count_vacancies)
-from bot.handlers.menu_handlers import get_setting, get_functional
-from bot.handlers.callback_handlers import get_callback_filter, get_callback_sort, get_callback_search
-from bot.handlers.callback_get_info import (get_callback_query, get_callback_vacancies, get_callback_format_skills,
-                                            get_callback_boundary_vacancies, get_callback_count_vacancies)
-from bot.handlers.callback_save_info import get_callback_changing_query, get_callback_filter_areas
+from bot.handlers.menu_handlers import get_filter, get_search, get_sort, get_skills, get_profile
+from bot.handlers.callback_handlers import (get_callback_search_parameters, get_callback_show_more,
+                                            get_filter_experience)
+
+from bot.handlers.callback_save_info import (get_callback_filter_areas, save_callback_experience,
+                                             get_callback_filter_salary)
 from bot.states.states_base import StepsBase
 
 
@@ -29,33 +30,37 @@ async def start():
 
     dp.message.register(started_message, CommandStart())
 
+    # register handlers reply markup
+    dp.message.register(get_filter, StepsBase.BASE_WORK, F.text == 'Фильтры')
+    dp.message.register(get_search, StepsBase.BASE_WORK, F.text == 'Искать')
+    dp.message.register(get_skills, StepsBase.BASE_WORK, F.text == 'Скилы')
+    dp.message.register(get_sort, StepsBase.BASE_WORK, F.text == 'Сортировка')
+    dp.message.register(get_profile, StepsBase.BASE_WORK, F.text == 'Профиль')
+
+    # register handlers commands
+    dp.message.register(get_query, StepsBase.BASE_WORK, Command(commands=['query']))
+    dp.message.register(get_search, StepsBase.BASE_WORK, Command(commands=['vacancies']))
+    dp.message.register(get_skills, StepsBase.BASE_WORK, Command(commands=['skills']))
+    dp.message.register(get_search, StepsBase.BASE_WORK, Command(commands=['vacancies']))
+    dp.message.register(get_skills, StepsBase.BASE_WORK, Command(commands=['skills']))
+    dp.message.register(get_boundary_vacancies, StepsBase.BASE_WORK, Command(commands=['boundary_vacancies']))
+    dp.message.register(get_count_vacancies, StepsBase.BASE_WORK, Command(commands='count_vacancies'))
+
+    # register handlers save and changing info
     dp.message.register(change_query, Command(commands=['changing_request']))
     dp.message.register(save_query, StepsBase.GET_QUERY)
 
-    dp.message.register(get_query, StepsBase.BASE_WORK, Command(commands=['get_query']))
-    dp.message.register(get_vacancies, StepsBase.BASE_WORK, Command(commands=['get_vacancies']))
-    dp.message.register(get_format_skills, StepsBase.BASE_WORK, Command(commands=['get_skills']))
-    dp.message.register(get_boundary_vacancies, StepsBase.BASE_WORK, Command(commands=['get_boundary_vacancies']))
-    dp.message.register(get_count_vacancies, StepsBase.BASE_WORK, Command(commands='get_count_vacancies'))
-
-    dp.message.register(get_setting, F.text == '⚙️Настройки')
-
-    dp.callback_query.register(get_callback_filter, StepsBase.BASE_WORK, F.data == 'filters')
-
+    # register handlers filter
+    dp.callback_query.register(get_filter_experience, F.data == 'filter_experience')
+    dp.callback_query.register(save_callback_experience, F.data[:10] == 'experience')
     dp.callback_query.register(get_callback_filter_areas, F.data == 'filter_areas')
+    dp.callback_query.register(get_callback_filter_salary, F.data == 'filter_salary')
+    dp.message.register(save_salary, StepsBase.GET_SALARY)
     dp.message.register(save_area, StepsBase.GET_AREA)
 
-    dp.callback_query.register(get_callback_sort, StepsBase.BASE_WORK, F.data == 'sort')
-    dp.callback_query.register(get_callback_search, StepsBase.BASE_WORK, F.data == 'search')
-
-    dp.message.register(get_functional, F.text == 'Функционал')
-
-    dp.callback_query.register(get_callback_query, StepsBase.BASE_WORK, F.data == 'query')
-    dp.callback_query.register(get_callback_changing_query, F.data == 'changing_query')
-    dp.callback_query.register(get_callback_vacancies, StepsBase.BASE_WORK, F.data == 'vacancies')
-    dp.callback_query.register(get_callback_format_skills, StepsBase.BASE_WORK, F.data == 'skills')
-    dp.callback_query.register(get_callback_boundary_vacancies, StepsBase.BASE_WORK, F.data == 'boundary_vacancies')
-    dp.callback_query.register(get_callback_count_vacancies, StepsBase.BASE_WORK, F.data == 'count_vacancies')
+    # register handlers inline buttons
+    dp.callback_query.register(get_callback_search_parameters, StepsBase.BASE_WORK, F.data == 'search_parameters')
+    dp.callback_query.register(get_callback_show_more, StepsBase.BASE_WORK, F.data == 'show_more')
 
     dp.message.register(base_answer)
 

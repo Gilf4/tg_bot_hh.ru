@@ -1,6 +1,7 @@
 from aiogram.fsm.context import FSMContext
 from utils.params import P
 from utils.get_info import get_areas
+from utils.filters import FilterSalaryFrom, FilterSalaryTo
 
 
 class ClientManager:
@@ -43,18 +44,26 @@ class ClientManager:
 
         return True
 
-    def set_base_structure(self):
+    def set_base_structure(self, name_profile: str = None):
         """
         Возвращаект базовую структуру не временных данных пользователя. В виде:
         {P.ind_profile: P.base, P.profiles: {P.base: {P.request_parameters: {}, P.filters: [], P.sorts: []}}}
         """
-        
-        self.data[P.ind_profile] = P.base
+
+        if name_profile is None:
+            self.data[P.ind_profile] = P.base
+        else:
+            self.data[P.ind_profile] = name_profile
+
         self.data[P.profiles] = dict()
         self.data[P.profiles][P.base] = dict()
-        self.data[P.profiles][P.base][P.request_parameters] = dict()
         self.data[P.profiles][P.base][P.filters] = []
         self.data[P.profiles][P.base][P.sorts] = []
+        self.data[P.profiles][P.base][P.vacancies] = []
+        self.data[P.profiles][P.base][P.request_parameters] = dict()
+        self.data[P.profiles][P.base][P.page] = 0
+        self.data[P.profiles][P.base][P.per_page] = 5
+        self.data[P.profiles][P.base][P.is_new_vacancies] = False
 
     async def set_state(self, condition):
         await self.state.set_state(condition)
@@ -73,16 +82,51 @@ class ClientManager:
         print('Город - ', area, ' не найден')
         return False
 
-    def change_salary(self, salary):
-        self.profile[P.salary] = int(salary)
+    def change_salary(self, salary: str):
+        if ('-' in salary) and (len(salary.split('-')) == 2):
+            salary = salary.strip()
+            for i in salary:
+                if not i.isdigit() and (i != '-'):
+                    return False
+
+            salary_from, salary_to = map(int, salary.split('-'))
+            self.profile[P.filters].append(FilterSalaryFrom(salary_from))
+            self.profile[P.filters].append(FilterSalaryTo(salary_to))
+
+            return True
+        return False
+
+    def change_is_new_vacancies(self, is_new_vacancies):
+        self.data[P.profiles][P.base][P.is_new_vacancies] = is_new_vacancies
         return True
 
     def change_per_page(self, per_page):
-        self.profile[P.request_parameters][P.per_page] = per_page
+        self.data[P.profiles][P.base][P.per_page] = per_page
+        return True
+
+    def change_search_per_page(self, per_page):
+        self.data[P.profiles][P.base][P.request_parameters][P.per_page] = per_page
+        return True
+
+    def change_experience(self, experience):
+        if experience:
+            self.profile[P.request_parameters][P.experience] = experience
+        else:
+            if self.profile[P.request_parameters].get(P.experience):
+                del self.profile[P.request_parameters][P.experience]
+
         return True
 
     def change_page(self, page):
-        self.profile[P.request_parameters][P.page] = page
+        self.data[P.profiles][P.base][P.page] = page
+        return True
+
+    def change_search_page(self, page):
+        self.data[P.profiles][P.base][P.request_parameters][P.page] = page
+        return True
+
+    def change_vacancies(self, vacancies):
+        self.data[P.profiles][P.base][P.vacancies] = vacancies
         return True
 
     def get_request_parameters(self):
@@ -101,12 +145,32 @@ class ClientManager:
         return salary
 
     def get_per_page(self):
-        per_page = self.profile.get(P.request_parameters, {}).get(P.per_page)
+        per_page = self.profile.get(P.per_page)
         return per_page
 
+    def get_search_per_page(self):
+        search_per_page = self.profile.get(P.request_parameters, {}).get(P.search_per_page)
+        return search_per_page
+
     def get_page(self):
-        page = self.profile.get(P.request_parameters, {}).get(P.page)
+        page = self.profile.get(P.page)
         return page
+
+    def get_search_page(self):
+        search_page = self.profile.get(P.request_parameters, {}).get(P.search_page)
+        return search_page
+
+    def get_filters(self):
+        return self.profile.get(P.filters)
+
+    def get_is_new_vacancies(self):
+        return self.profile.get(P.is_new_vacancies)
+
+    def get_experience(self):
+        return self.profile.get(P.request_parameters, {}).get(P.experience)
+
+    def get_vacancies(self):
+        return self.profile.get(P.vacancies)
 
     async def save(self):
         await self.state.update_data(self.data)

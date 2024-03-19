@@ -1,10 +1,31 @@
 from collections import defaultdict
-from api.handler_api import get_areas_json, get_vacancies, send_requests
+from api.handler_api import get_vacancies, send_requests
 from utils.formats import format_vacancies, format_skills
 from utils.keys_sort import sort_by_salaries
 from utils.filters import FilterPresenceSalary
 from utils.managers import ClientManager
 from utils.params import P
+
+
+async def get_all_vacancies(c: ClientManager):
+    page = -1  # Сдвиг для красоты (первая страница - 0)
+    data = []  # Список вакансий
+    c.change_search_per_page(100)  # Устоновка максимального количество получаемых вакансий
+
+    while True:
+        page += 1
+        c.change_search_page(page)
+        vacancies = await get_vacancies(c.get_request_parameters())
+
+        if vacancies and vacancies['items']:
+            data.extend(vacancies['items'])
+        else:
+            break
+
+        if page == vacancies.get('pages'):  # Проверка на последнюю стнаницу
+            break
+
+    return data
 
 
 async def smarted_get_vacancies(c: ClientManager, count_vacancies: int = 0) -> list:
@@ -15,22 +36,21 @@ async def smarted_get_vacancies(c: ClientManager, count_vacancies: int = 0) -> l
     :return: Список вакансий
     """
 
-    page = -1  # Сдвиг для красоты (первая страница - 0)
-    data = []  # Список вакансий
-    c.change_per_page(100)  # Устоновка максимального количество получаемых вакансий
+    if c.get_is_new_vacancies() and not count_vacancies:
+        return c.get_vacancies()
+    elif c.get_is_new_vacancies() and count_vacancies:
+        return c.get_vacancies()[:count_vacancies]
 
-    while len(data) < count_vacancies or not count_vacancies:
-        page += 1
-        c.change_page(page)
-        vacancies = await get_vacancies(c.get_request_parameters())
+    data = await get_all_vacancies(c)
 
-        if vacancies and vacancies['items']:
-            data.extend(vacancies['items'])
-        else:
-            break
+    filters = c.get_filters()
 
-        if page == vacancies.get('pages'):  # Проверка на последнюю стнаницу
-            break
+    if filters:
+        data = await custom_filter_vacancies(data, *filters)
+
+    c.change_vacancies(data)
+    c.change_is_new_vacancies(True)
+    await c.save()
 
     if count_vacancies:
         data = data[:count_vacancies]  # Срезаем лишнии вакансии
@@ -44,12 +64,8 @@ async def get_count_vacancies(c: ClientManager) -> int:
     :return: Количество найденных вакансий
     """
 
-    data = await get_vacancies(c.get_request_parameters())
-
-    if data:
-        return data.get(P.found, 0)
-
-    return -1
+    data = await smarted_get_vacancies(c)
+    return len(data)
 
 
 async def extend_vacancies(list_vacancies: list) -> list:
@@ -113,8 +129,14 @@ async def get_format_vacancies(c: ClientManager):
     :return:
     """
 
-    vacancies = await smarted_get_vacancies(c, count_vacancies=5)
-    return format_vacancies(vacancies)
+    f = True
+    vacancies = await smarted_get_vacancies(c)
+    if len(vacancies) <= (c.get_page() + 1) * c.get_per_page():
+        f = False
+
+    vacancies = vacancies[c.get_page() * c.get_per_page(): (c.get_page() + 1) * c.get_per_page()]
+
+    return format_vacancies(vacancies), f
 
 
 async def calculate_median(data: list) -> float | bool:
@@ -206,17 +228,6 @@ async def get_salaries(c: ClientManager) -> list:
                 salaries.append(to_value)
 
     return salaries
-
-
-async def get_experience() -> dict:
-    """
-    :return: Словарь вида {name_experience: id_experience}
-    """
-
-    return {'Нет опыта': 'noExperience',
-            'От 1 года до 3 лет': 'between1And3',
-            'От 3 до 6 лет': 'between3And6',
-            'Более 6 лет': 'moreThan6'}
 
 
 async def main():

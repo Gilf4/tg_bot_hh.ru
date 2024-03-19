@@ -21,21 +21,6 @@ async def get_query(massage: Message, state: FSMContext):
         await massage.answer(text)
 
 
-async def get_vacancies(massage: Message, state: FSMContext):
-    c = ClientManager()
-    await c.init(state)
-
-    await massage.answer(await utils.get_format_vacancies(c))
-
-
-async def get_format_skills(massage: Message, state: FSMContext):
-    c = ClientManager()
-    await c.init(state)
-
-    await massage.answer('Данные собираються...')
-    await massage.answer(await utils.get_format_skills(c))
-
-
 async def get_boundary_vacancies(massage: Message, state: FSMContext):
     c = ClientManager()
     await c.init(state)

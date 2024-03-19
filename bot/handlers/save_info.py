@@ -17,6 +17,7 @@ async def save_query(message: Message, state: FSMContext):
     c = ClientManager()
 
     if await c.init(state) and c.change_query(message.text):
+        c.change_is_new_vacancies(False)
         await c.save()
         await c.set_state(StepsBase.BASE_WORK)
         await message.answer(text_answer)
@@ -32,6 +33,7 @@ async def save_area(message: Message, state: FSMContext):
     c = ClientManager()
 
     if await c.init(state) and c.change_area(message.text):
+        c.change_is_new_vacancies(False)
         await c.save()
         await c.set_state(StepsBase.BASE_WORK)
         await message.answer(text_answer)
@@ -41,12 +43,13 @@ async def save_area(message: Message, state: FSMContext):
 
 async def save_salary(message: Message, state: FSMContext):
     text_answer = f'''
-            Текущая просматриваемая зарплата - {message.text}    
+            Текущая просматриваемая зарплата: {message.text}    
         '''
 
     c = ClientManager()
 
     if await c.init(state) and c.change_salary(message.text):
+        c.change_is_new_vacancies(False)
         await c.save()
         await state.set_state(StepsBase.BASE_WORK)
         await message.answer(text_answer)

@@ -20,7 +20,7 @@ filters = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='Зарплата', callback_data='filter_salary')],
     [InlineKeyboardButton(text='Опыт', callback_data='filter_experience')],
     [InlineKeyboardButton(text='Регион, город...', callback_data='filter_areas')],
-    [InlineKeyboardButton(text='Только популярные компании', callback_data='filter_popular_companies')]
+    # [InlineKeyboardButton(text='Только популярные компании', callback_data='filter_popular_companies')]
 ])
 
 sorting = InlineKeyboardMarkup(inline_keyboard=[
@@ -28,7 +28,19 @@ sorting = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='Опыт', callback_data='sort_experience')]
 ])
 
-search_parameters = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='Поле поиска', callback_data='search_field')],
-    [InlineKeyboardButton(text='Что ищем?', callback_data='search_text')]
+markup_search = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='Параметры поиска', callback_data='search_parameters')],
+    [InlineKeyboardButton(text='Показать ещё', callback_data='show_more')]
+])
+
+slow_markup_search = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='Параметры поиска', callback_data='search_parameters')],
+])
+
+experience = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='Нет опыта', callback_data='experience_Нет опыта')],
+    [InlineKeyboardButton(text='От 1 года до 3 лет', callback_data='experience_От 1 года до 3 лет')],
+    [InlineKeyboardButton(text='От 3 до 6 лет', callback_data='experience_От 3 до 6 лет')],
+    [InlineKeyboardButton(text='Более 6 лет', callback_data='experience_Более 6 лет')],
+    [InlineKeyboardButton(text='Любой', callback_data='experience_Любой')],
 ])

@@ -3,6 +3,7 @@ from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from bot.commands.set_commands import set_default_commands
 from bot.buttons_markup.reply_markup import base_markup
+from bot.handlers.save_info import change_query
 from utils.managers import ClientManager
 
 
@@ -26,6 +27,7 @@ async def started_message(message: Message, state: FSMContext):
 
     await c.save()
     await message.answer(text_answer, reply_markup=base_markup)
+    await change_query(message, state)
 
 
 async def base_answer(message: Message):

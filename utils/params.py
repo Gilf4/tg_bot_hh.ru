@@ -50,6 +50,13 @@ class P:
     url: str = 'url'
     key_skills: str = 'key_skills'
 
+    vacancies: str = 'vacancies'
+    is_new_vacancies: str = 'is_new_vacancies'
+    search_page: str = 'search_page'
+    search_per_page: str = 'search_per_page'
+    experience: str = 'experience'
+
+
 def main():
     """
     Пример создания / заполнения словаря значений для get_vacancies
