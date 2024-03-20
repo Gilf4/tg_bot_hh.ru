@@ -1,16 +1,9 @@
 from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
-from bot.buttons_markup.inline_markup import markup_search, slow_markup_search, experience
+from bot.buttons_markup.inline_markup import (markup_search, slow_markup_search, experience,
+                                              search_parameters, search_fields)
 from utils.managers import ClientManager
-from utils.utils import get_format_vacancies
-
-
-async def get_callback_search_parameters(call: CallbackQuery):
-    text_answer = f'''
-        Выберите интересиющий вас параметр поиска:
-    '''
-
-    # await call.message.answer(text_answer, reply_markup=)
+from utils.utils import get_format_vacancies, get_salaries, calculate_average, calculate_median
 
 
 async def get_callback_show_more(call: CallbackQuery, state: FSMContext):
@@ -30,9 +23,41 @@ async def get_callback_show_more(call: CallbackQuery, state: FSMContext):
         await call.message.answer('Вакансии не найдены')
 
 
-async def get_filter_experience(call: CallbackQuery):
+async def get_callback_filter_experience(call: CallbackQuery):
     text_answer = f'''
             Выберите категорию опыта:
         '''
 
     await call.message.answer(text_answer, reply_markup=experience)
+
+
+async def get_callback_average_salary(call: CallbackQuery, state: FSMContext):
+    c = ClientManager()
+    await c.init(state)
+
+    average_salary = await calculate_average(await get_salaries(c))
+    await call.message.answer(f'Средняя зарплата по вакансиям - {average_salary}')
+
+
+async def get_callback_median_salary(call: CallbackQuery, state: FSMContext):
+    c = ClientManager()
+    await c.init(state)
+
+    median_salary = await calculate_median(await get_salaries(c))
+    await call.message.answer(f'Медиана зарплаты по вакансиям - {median_salary}')
+
+
+async def get_callback_search_parameters(call: CallbackQuery):
+    text_answer = f'''
+                Параметры поиска:
+            '''
+
+    await call.message.answer(text_answer, reply_markup=search_parameters)
+
+
+async def get_callback_change_search_field(call: CallbackQuery):
+    text_answer = f'''
+                    Выберите параметр поиска:
+                '''
+
+    await call.message.answer(text_answer, reply_markup=search_fields)

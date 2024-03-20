@@ -55,3 +55,15 @@ async def get_callback_count_vacancies(call: CallbackQuery, state: FSMContext):
 
     count = await utils.get_count_vacancies(c)
     await call.answer(str(count))
+
+
+async def get_callback_search_field(call: CallbackQuery, state: FSMContext):
+    c = ClientManager()
+    await c.init(state)
+
+    search_field = c.get_search_field()
+
+    if search_field:
+        await call.answer(search_field)
+    else:
+        await call.answer('Поле поиска не задано')

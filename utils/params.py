@@ -55,6 +55,8 @@ class P:
     search_page: str = 'search_page'
     search_per_page: str = 'search_per_page'
     experience: str = 'experience'
+    revers_sort: str = 'revers_sort'
+    key_sort: str = 'key_sort'
 
 
 def main():

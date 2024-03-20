@@ -12,10 +12,13 @@ from bot.handlers.get_info import (get_query, get_boundary_vacancies,
                                    get_count_vacancies)
 from bot.handlers.menu_handlers import get_filter, get_search, get_sort, get_skills, get_profile
 from bot.handlers.callback_handlers import (get_callback_search_parameters, get_callback_show_more,
-                                            get_filter_experience)
-
+                                            get_callback_filter_experience, get_callback_average_salary,
+                                            get_callback_median_salary, get_callback_change_search_field)
+from bot.handlers.callback_get_info import get_callback_query, get_callback_search_field
 from bot.handlers.callback_save_info import (get_callback_filter_areas, save_callback_experience,
-                                             get_callback_filter_salary)
+                                             get_callback_filter_salary, save_callback_sort_salary,
+                                             get_callback_sort_ascending_order, get_callback_sort_descending_order,
+                                             get_callback_changing_query, save_callback_search_field)
 from bot.states.states_base import StepsBase
 
 
@@ -51,7 +54,7 @@ async def start():
     dp.message.register(save_query, StepsBase.GET_QUERY)
 
     # register handlers filter
-    dp.callback_query.register(get_filter_experience, F.data == 'filter_experience')
+    dp.callback_query.register(get_callback_filter_experience, F.data == 'filter_experience')
     dp.callback_query.register(save_callback_experience, F.data[:10] == 'experience')
     dp.callback_query.register(get_callback_filter_areas, F.data == 'filter_areas')
     dp.callback_query.register(get_callback_filter_salary, F.data == 'filter_salary')
@@ -62,6 +65,20 @@ async def start():
     dp.callback_query.register(get_callback_search_parameters, StepsBase.BASE_WORK, F.data == 'search_parameters')
     dp.callback_query.register(get_callback_show_more, StepsBase.BASE_WORK, F.data == 'show_more')
 
+    # register handlers search parameters
+    dp.callback_query.register(get_callback_search_parameters, F.data == 'search_parameters')
+    dp.callback_query.register(get_callback_query, F.data == 'query')
+    dp.callback_query.register(get_callback_changing_query, F.data == 'change_query')
+    dp.callback_query.register(get_callback_search_field, F.data == 'search_field')
+    dp.callback_query.register(get_callback_change_search_field, F.data == 'change_search_field')
+    dp.callback_query.register(save_callback_search_field, F.data[:17] == 'save_search_field')
+
+    # register handlers inline sort
+    dp.callback_query.register(save_callback_sort_salary, F.data == 'sort_salary')
+    dp.callback_query.register(get_callback_average_salary, F.data == 'average_salary')
+    dp.callback_query.register(get_callback_median_salary, F.data == 'median_salary')
+    dp.callback_query.register(get_callback_sort_ascending_order, F.data == 'sort_ascending_order')
+    dp.callback_query.register(get_callback_sort_descending_order, F.data == 'sort_descending_order')
     dp.message.register(base_answer)
 
     try:

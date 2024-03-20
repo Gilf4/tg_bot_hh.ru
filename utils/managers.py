@@ -64,6 +64,7 @@ class ClientManager:
         self.data[P.profiles][P.base][P.page] = 0
         self.data[P.profiles][P.base][P.per_page] = 5
         self.data[P.profiles][P.base][P.is_new_vacancies] = False
+        self.data[P.profiles][P.base][P.revers_sort] = True
 
     async def set_state(self, condition):
         await self.state.set_state(condition)
@@ -82,6 +83,10 @@ class ClientManager:
         print('Город - ', area, ' не найден')
         return False
 
+    def change_search_field(self, search_field):
+        self.profile[P.request_parameters][P.search_field] = search_field
+        return True
+
     def change_salary(self, salary: str):
         if ('-' in salary) and (len(salary.split('-')) == 2):
             salary = salary.strip()
@@ -95,6 +100,14 @@ class ClientManager:
 
             return True
         return False
+
+    def change_revers_sort(self, is_revers_sort):
+        self.profile[P.revers_sort] = is_revers_sort
+        return True
+
+    def change_key_sort(self, key_sort):
+        self.profile[P.key_sort] = key_sort
+        return True
 
     def change_is_new_vacancies(self, is_new_vacancies):
         self.data[P.profiles][P.base][P.is_new_vacancies] = is_new_vacancies
@@ -171,6 +184,15 @@ class ClientManager:
 
     def get_vacancies(self):
         return self.profile.get(P.vacancies)
+
+    def get_revers_sort(self):
+        return self.profile.get(P.revers_sort)
+
+    def get_key_sort(self):
+        return self.profile.get(P.key_sort)
+
+    def get_search_field(self):
+        return self.profile.get(P.request_parameters, {}).get(P.search_field)
 
     async def save(self):
         await self.state.update_data(self.data)

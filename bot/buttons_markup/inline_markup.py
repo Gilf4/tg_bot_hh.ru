@@ -7,15 +7,6 @@ settings = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='Параметры поиска', callback_data='search')]
 ])
 
-functional = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='Запрос', callback_data='query'),
-     InlineKeyboardButton(text='Изменить запрос', callback_data='changing_query')],
-    [InlineKeyboardButton(text='Вакансии', callback_data='vacancies'),
-     InlineKeyboardButton(text='Количество вакансии', callback_data='count_vacancies')],
-    [InlineKeyboardButton(text='Пограничные вакансии', callback_data='boundary_vacancies')],
-    [InlineKeyboardButton(text='Стек технологий', callback_data='skills')]
-])
-
 filters = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='Зарплата', callback_data='filter_salary')],
     [InlineKeyboardButton(text='Опыт', callback_data='filter_experience')],
@@ -24,8 +15,11 @@ filters = InlineKeyboardMarkup(inline_keyboard=[
 ])
 
 sorting = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='Зарплата', callback_data='sort_salary')],
-    [InlineKeyboardButton(text='Опыт', callback_data='sort_experience')]
+    [InlineKeyboardButton(text='Средняя зарплата', callback_data='average_salary')],
+    [InlineKeyboardButton(text='Медиана зарплаты', callback_data='median_salary')],
+    [InlineKeyboardButton(text='Сортировка по зарплате', callback_data='sort_salary')],
+    [InlineKeyboardButton(text='Сортировка по возрастанию', callback_data='sort_ascending_order')],
+    [InlineKeyboardButton(text='Сортировка по убыванию', callback_data='sort_descending_order')]
 ])
 
 markup_search = InlineKeyboardMarkup(inline_keyboard=[
@@ -43,4 +37,19 @@ experience = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='От 3 до 6 лет', callback_data='experience_От 3 до 6 лет')],
     [InlineKeyboardButton(text='Более 6 лет', callback_data='experience_Более 6 лет')],
     [InlineKeyboardButton(text='Любой', callback_data='experience_Любой')],
+])
+
+search_parameters = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='Запрос', callback_data='query'),
+     InlineKeyboardButton(text='Сменить запрос', callback_data='change_query')],
+    [InlineKeyboardButton(text='Поле поиска', callback_data='search_field'),
+     InlineKeyboardButton(text='Сменить поле поиска', callback_data='change_search_field')],
+])
+
+search_fields = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='По названию вакансии', callback_data='save_search_field name')],
+    [InlineKeyboardButton(text='По названию компании', callback_data='save_search_field company_name')],
+    [InlineKeyboardButton(text='По описанию вакансии', callback_data='save_search_field description')],
+    [InlineKeyboardButton(text='По требованиям к кандидату', callback_data='save_search_field requirement')],
+    [InlineKeyboardButton(text='По всем словам', callback_data='save_search_field all_words')],
 ])
