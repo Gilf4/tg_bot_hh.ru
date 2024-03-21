@@ -55,3 +55,23 @@ async def save_salary(message: Message, state: FSMContext):
         await message.answer(text_answer)
     else:
         await message.answer('Что-то пошло не так. Попробуйте ещё раз')
+
+
+async def save_name_profile(message: Message, state: FSMContext):
+    text_answer = f'''
+                Ваше новой название профиля: {message.text}
+            '''
+
+    c = ClientManager()
+
+    for name in c.get_names_profiles():
+        if message.text == name:
+            await message.message.answer('Такое имя уже есть. Попробуйте другое')
+            return
+
+    if await c.init(state) and c.change_name_profile(message.text):
+        await c.save()
+        await c.set_state(StepsBase.BASE_WORK)
+        await message.answer(text_answer)
+    else:
+        await message.answer('Что-то пошло не так. Попробуйте ещё раз')

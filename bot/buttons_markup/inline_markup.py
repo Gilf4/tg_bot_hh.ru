@@ -1,4 +1,5 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
 settings = InlineKeyboardMarkup(inline_keyboard=[
@@ -53,3 +54,23 @@ search_fields = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='По требованиям к кандидату', callback_data='save_search_field requirement')],
     [InlineKeyboardButton(text='По всем словам', callback_data='save_search_field all_words')],
 ])
+
+profile = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='Редактировать профиль', callback_data='edit_profile')],
+    [InlineKeyboardButton(text='Список профилей', callback_data='list_profile')]
+])
+
+bot_settings = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='Сменить название', callback_data='change_name_profile')]
+])
+
+
+def get_list_profile(list_profiles):
+    builder = InlineKeyboardBuilder()
+
+    for name in list_profiles:
+        builder.add(InlineKeyboardButton(text=name, callback_data=f'change_profile {name}'))
+
+    builder.add(InlineKeyboardButton(text='Добавить новы профиль', callback_data='add_new_profile'))
+    builder.adjust(1)
+    return builder.as_markup()

@@ -1,6 +1,6 @@
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
-from bot.buttons_markup.inline_markup import filters, sorting, markup_search, slow_markup_search
+from bot.buttons_markup.inline_markup import filters, sorting, markup_search, slow_markup_search, profile
 from utils.managers import ClientManager
 from utils.utils import get_format_vacancies, get_format_skills
 
@@ -22,7 +22,11 @@ async def get_sort(message: Message):
 
 
 async def get_profile(message: Message):
-    pass
+    text_answer = f'''
+                            Профиль:
+                        '''
+
+    await message.answer(text_answer, reply_markup=profile)
 
 
 async def get_skills(massage: Message, state: FSMContext):

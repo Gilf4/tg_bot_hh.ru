@@ -35,7 +35,7 @@ async def smarted_get_vacancies(c: ClientManager, count_vacancies: int = 0) -> l
     :param c: Параметры для получения вакансии в виде словаря. Для приготовленя рекомундуеться params_get_vacancies
     :return: Список вакансий
     """
-
+    print(c.get_is_new_vacancies())
     if c.get_is_new_vacancies() and not count_vacancies:
         return c.get_vacancies()
     elif c.get_is_new_vacancies() and count_vacancies:

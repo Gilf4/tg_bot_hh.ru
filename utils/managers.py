@@ -55,19 +55,18 @@ class ClientManager:
         else:
             self.data[P.ind_profile] = name_profile
 
-        self.data[P.profiles] = dict()
-        self.data[P.profiles][P.base] = dict()
-        self.data[P.profiles][P.base][P.filters] = []
-        self.data[P.profiles][P.base][P.sorts] = []
-        self.data[P.profiles][P.base][P.vacancies] = []
-        self.data[P.profiles][P.base][P.request_parameters] = dict()
-        self.data[P.profiles][P.base][P.page] = 0
-        self.data[P.profiles][P.base][P.per_page] = 5
-        self.data[P.profiles][P.base][P.is_new_vacancies] = False
-        self.data[P.profiles][P.base][P.revers_sort] = True
+        self.data[P.profiles] = {}
+        self.data[P.profiles][P.base] = self.get_base_struct_profile()
 
     async def set_state(self, condition):
         await self.state.set_state(condition)
+
+    def add_new_profile(self):
+        self.data[P.profiles][P.new_profile] = self.get_base_struct_profile()
+        self.profile = self.data[P.profiles][P.new_profile]
+        self.change_ind_profile(P.new_profile)
+
+        return True
 
     def change_query(self, query):
         self.profile[P.request_parameters][P.text] = query
@@ -110,15 +109,15 @@ class ClientManager:
         return True
 
     def change_is_new_vacancies(self, is_new_vacancies):
-        self.data[P.profiles][P.base][P.is_new_vacancies] = is_new_vacancies
+        self.profile[P.is_new_vacancies] = is_new_vacancies
         return True
 
     def change_per_page(self, per_page):
-        self.data[P.profiles][P.base][P.per_page] = per_page
+        self.profile[P.per_page] = per_page
         return True
 
     def change_search_per_page(self, per_page):
-        self.data[P.profiles][P.base][P.request_parameters][P.per_page] = per_page
+        self.profile[P.request_parameters][P.per_page] = per_page
         return True
 
     def change_experience(self, experience):
@@ -131,15 +130,31 @@ class ClientManager:
         return True
 
     def change_page(self, page):
-        self.data[P.profiles][P.base][P.page] = page
+        self.profile[P.page] = page
         return True
 
     def change_search_page(self, page):
-        self.data[P.profiles][P.base][P.request_parameters][P.page] = page
+        self.profile[P.request_parameters][P.page] = page
         return True
 
     def change_vacancies(self, vacancies):
-        self.data[P.profiles][P.base][P.vacancies] = vacancies
+        self.profile[P.vacancies] = vacancies
+        return True
+
+    def change_name_profile(self, name_profile):
+        if self.data[P.profiles].get(self.data[P.ind_profile]):
+            del self.data[P.profiles][self.data[P.ind_profile]]
+
+        self.data[P.profiles][name_profile] = self.profile
+        self.change_ind_profile(name_profile)
+        return True
+
+    def change_ind_profile(self, ind_profile):
+        self.data[P.ind_profile] = ind_profile
+        return True
+
+    def change_profile(self, name_profile):
+        self.data[P.ind_profile] = name_profile
         return True
 
     def get_request_parameters(self):
@@ -193,6 +208,30 @@ class ClientManager:
 
     def get_search_field(self):
         return self.profile.get(P.request_parameters, {}).get(P.search_field)
+
+    def get_name_profile(self):
+        return self.data.get(P.ind_profile)
+
+    def get_names_profiles(self):
+        return self.data.get(P.profiles, {}).keys()
+
+    def get_count_profiles(self):
+        return len(self.data.get(P.profiles, {}))
+
+    @staticmethod
+    def get_base_struct_profile():
+        base_profile = {
+            P.filters: [],
+            P.sorts: None,
+            P.vacancies: [],
+            P.request_parameters: {},
+            P.page: 0,
+            P.per_page: 5,
+            P.is_new_vacancies: False,
+            P.revers_sort: True
+        }
+
+        return base_profile
 
     async def save(self):
         await self.state.update_data(self.data)

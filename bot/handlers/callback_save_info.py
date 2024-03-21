@@ -5,11 +5,17 @@ from utils.managers import ClientManager
 from utils.get_info import get_experience
 from utils.keys_sort import sort_by_salaries
 from utils.utils import custom_sort_vacancies
+from utils.params import P
 
 
 async def get_callback_changing_query(call: CallbackQuery, state: FSMContext):
     await call.message.answer('Введите интересующую вас вакансию')
     await state.set_state(StepsBase.GET_QUERY)
+
+
+async def get_callback_change_name_profile(call: CallbackQuery, state: FSMContext):
+    await call.message.answer('Введите новое название профиля')
+    await state.set_state(StepsBase.GET_NAME_PROFILE)
 
 
 async def get_callback_filter_areas(call: CallbackQuery, state):
@@ -103,6 +109,43 @@ async def save_callback_search_field(call: CallbackQuery, state: FSMContext):
 
     if await c.init(state) and c.change_search_field(search_field):
         c.change_is_new_vacancies(False)
+        await c.save()
+        await c.set_state(StepsBase.BASE_WORK)
+        await call.message.answer(text_answer)
+    else:
+        await call.message.answer('Что-то пошло не так. Попробуйте ещё раз')
+
+
+async def save_callback_new_profile(call: CallbackQuery, state: FSMContext):
+    text_answer = f'''
+                    Создан новый профиль!\r\nВаш профиль - new_profile. Приятной настройки!
+                '''
+
+    c = ClientManager()
+
+    if await c.init(state):
+        name = c.get_request_parameters().get(P.text)
+        print(name)
+        if c.add_new_profile():
+            c.change_query(name)
+            print(c.data)
+            await c.save()
+            await c.set_state(StepsBase.BASE_WORK)
+            await call.message.answer(text_answer)
+    else:
+        await call.message.answer('Что-то пошло не так. Попробуйте ещё раз')
+
+
+async def save_callback_profile(call: CallbackQuery, state: FSMContext):
+    name = call.data.split(' ')[1]
+
+    text_answer = f'''
+                        Ваш профиль - {name}
+                    '''
+
+    c = ClientManager()
+
+    if await c.init(state) and c.change_ind_profile(name):
         await c.save()
         await c.set_state(StepsBase.BASE_WORK)
         await call.message.answer(text_answer)

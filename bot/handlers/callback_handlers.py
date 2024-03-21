@@ -1,7 +1,8 @@
 from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 from bot.buttons_markup.inline_markup import (markup_search, slow_markup_search, experience,
-                                              search_parameters, search_fields)
+                                              search_parameters, search_fields, profile, get_list_profile,
+                                              bot_settings)
 from utils.managers import ClientManager
 from utils.utils import get_format_vacancies, get_salaries, calculate_average, calculate_median
 
@@ -61,3 +62,23 @@ async def get_callback_change_search_field(call: CallbackQuery):
                 '''
 
     await call.message.answer(text_answer, reply_markup=search_fields)
+
+
+async def get_callback_edit_profile(call: CallbackQuery):
+    text_answer = f'''
+                        Настройки бота:
+                    '''
+
+    await call.message.answer(text_answer, reply_markup=bot_settings)
+
+
+async def get_callback_list_profile(call: CallbackQuery, state: FSMContext):
+    text_answer = f'''
+                        Профили:
+                    '''
+
+    c = ClientManager()
+    await c.init(state)
+
+    profiles = get_list_profile(c.get_names_profiles())
+    await call.message.answer(text_answer, reply_markup=profiles)

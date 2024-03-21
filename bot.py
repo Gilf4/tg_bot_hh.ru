@@ -7,18 +7,21 @@ from aiogram import F
 from bot.config import Bot_Token
 
 from bot.handlers.base_handlers import start_bot, stop_bot, started_message, base_answer
-from bot.handlers.save_info import change_query, save_query, save_area, save_salary
+from bot.handlers.save_info import change_query, save_query, save_area, save_salary, save_name_profile
 from bot.handlers.get_info import (get_query, get_boundary_vacancies,
                                    get_count_vacancies)
 from bot.handlers.menu_handlers import get_filter, get_search, get_sort, get_skills, get_profile
 from bot.handlers.callback_handlers import (get_callback_search_parameters, get_callback_show_more,
                                             get_callback_filter_experience, get_callback_average_salary,
-                                            get_callback_median_salary, get_callback_change_search_field)
+                                            get_callback_median_salary, get_callback_change_search_field,
+                                            get_callback_list_profile, get_callback_edit_profile)
 from bot.handlers.callback_get_info import get_callback_query, get_callback_search_field
 from bot.handlers.callback_save_info import (get_callback_filter_areas, save_callback_experience,
                                              get_callback_filter_salary, save_callback_sort_salary,
                                              get_callback_sort_ascending_order, get_callback_sort_descending_order,
-                                             get_callback_changing_query, save_callback_search_field)
+                                             get_callback_changing_query, save_callback_search_field,
+                                             get_callback_change_name_profile, save_callback_new_profile,
+                                             save_callback_profile)
 from bot.states.states_base import StepsBase
 
 
@@ -79,6 +82,15 @@ async def start():
     dp.callback_query.register(get_callback_median_salary, F.data == 'median_salary')
     dp.callback_query.register(get_callback_sort_ascending_order, F.data == 'sort_ascending_order')
     dp.callback_query.register(get_callback_sort_descending_order, F.data == 'sort_descending_order')
+
+    # register handlers inline system profile
+    dp.callback_query.register(get_callback_edit_profile, F.data == 'edit_profile')
+    dp.callback_query.register(get_callback_change_name_profile, F.data == 'change_name_profile')
+    dp.message.register(save_name_profile, StepsBase.GET_NAME_PROFILE)
+    dp.callback_query.register(get_callback_list_profile, F.data == 'list_profile')
+    dp.callback_query.register(save_callback_profile, F.data[:14] == 'change_profile')
+    dp.callback_query.register(save_callback_new_profile, F.data == 'add_new_profile')
+
     dp.message.register(base_answer)
 
     try:

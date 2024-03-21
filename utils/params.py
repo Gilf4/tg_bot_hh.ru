@@ -57,6 +57,7 @@ class P:
     experience: str = 'experience'
     revers_sort: str = 'revers_sort'
     key_sort: str = 'key_sort'
+    new_profile: str = 'new_profile'
 
 
 def main():
