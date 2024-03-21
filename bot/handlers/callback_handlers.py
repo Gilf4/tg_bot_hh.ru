@@ -21,7 +21,7 @@ async def get_callback_show_more(call: CallbackQuery, state: FSMContext):
     elif vacancies:
         await call.message.answer(vacancies, reply_markup=slow_markup_search)
     else:
-        await call.message.answer('Вакансии не найдены')
+        await call.message.answer('Вакансии не найдены', reply_markup=slow_markup_search)
 
 
 async def get_callback_filter_experience(call: CallbackQuery):

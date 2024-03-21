@@ -1,7 +1,7 @@
 
 def format_vacancies(vacancies):
     if not vacancies:
-        return "Ошибка при запросе"
+        return 'Нет подходящих вакансий'
 
     vacancies_text = ''
     for item in vacancies:

@@ -41,8 +41,8 @@ experience = InlineKeyboardMarkup(inline_keyboard=[
 ])
 
 search_parameters = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='Запрос', callback_data='query'),
-     InlineKeyboardButton(text='Сменить запрос', callback_data='change_query')],
+    [InlineKeyboardButton(text='Имя профессии', callback_data='query'),
+     InlineKeyboardButton(text='Сменить имя профессии', callback_data='change_query')],
     [InlineKeyboardButton(text='Поле поиска', callback_data='search_field'),
      InlineKeyboardButton(text='Сменить поле поиска', callback_data='change_search_field')],
 ])
@@ -51,8 +51,7 @@ search_fields = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='По названию вакансии', callback_data='save_search_field name')],
     [InlineKeyboardButton(text='По названию компании', callback_data='save_search_field company_name')],
     [InlineKeyboardButton(text='По описанию вакансии', callback_data='save_search_field description')],
-    [InlineKeyboardButton(text='По требованиям к кандидату', callback_data='save_search_field requirement')],
-    [InlineKeyboardButton(text='По всем словам', callback_data='save_search_field all_words')],
+    [InlineKeyboardButton(text='По требованиям к кандидату', callback_data='save_search_field requirement')]
 ])
 
 profile = InlineKeyboardMarkup(inline_keyboard=[
