@@ -1,45 +1,38 @@
-import requests
+import time
+import asyncio
 from api.url_requests import *
+from aiohttp.client import ClientSession
 
 
-async def send_requests(url: str, par: dict = None) -> any:
-    """
-    Функция для безопасного отправления запроса
-    :param url: Ссылка на api
-    :param par: Словарь опциональных параметров
-    :return: Ответ в виде json'а или None, если произошла ошибка
-    """
+async def async_send_requests(url: str, session: ClientSession, params: dict, out: list) -> any:
+    async with session.get(url, params=params) as response:
+        data = await response.json()
+        vacancies = data.get('items')
 
-    req = requests.get(url, params=par)
-
-    if req.status_code == 200:
-        data = req.json()
-        req.close()
-        return data
+        time.sleep(0.05)
+        if vacancies:
+            # print(response.url)
+            out.extend(vacancies)
+        else:
+            await asyncio.create_task(async_send_requests(url, session, params, out))
+            # print(response)
 
 
-async def get_areas_json() -> any:
+async def async_get_areas_json(session: ClientSession, params: dict, out: list) -> any:
     """
     Функция делает запрос для получения мест (https://api.hh.ru/areas)
     :return: словарь мест в виде json'а
     """
 
-    return await send_requests(url_get_areas)
+    return await async_send_requests(url_get_areas, session, params, out)
 
 
-async def get_vacancies(params: dict) -> any:
-    """
-    Функция делает запрос для получения вакансий (https://api.hh.ru/vacancies)
-    :param params: Словарь параметров для запроса
-    :return: словарь в виде json'а
-    """
-
-    return await send_requests(url_get_vacancies, params)
+async def async_get_vacancies(session: ClientSession, params: dict, out: list) -> any:
+    await async_send_requests(url_get_vacancies, session, params, out)
 
 
 async def main():
-    data = await get_areas_json()
-    print(data.get('Нижний Новгород'))
+    pass
 
 
 if __name__ == '__main__':

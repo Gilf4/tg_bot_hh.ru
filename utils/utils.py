@@ -1,5 +1,9 @@
 from collections import defaultdict
-from api.handler_api import get_vacancies, send_requests
+import copy
+import asyncio
+import aiohttp
+from api.url_requests import url_get_vacancies
+from api.handler_api import async_send_requests, async_get_vacancies
 from utils.formats import format_vacancies, format_skills
 from utils.keys_sort import sort_by_salaries
 from utils.filters import FilterPresenceSalary
@@ -15,7 +19,7 @@ async def get_all_vacancies(c: ClientManager):
     while True:
         page += 1
         c.change_search_page(page)
-        vacancies = await get_vacancies(c.get_request_parameters())
+        vacancies = await async_get_vacancies(c.get_request_parameters())
 
         if vacancies and vacancies['items']:
             data.extend(vacancies['items'])
@@ -26,6 +30,44 @@ async def get_all_vacancies(c: ClientManager):
             break
 
     return data
+
+
+async def async_get_all_vacancies(c: ClientManager):
+    c.change_search_per_page(100)  # Устоновка максимального количество получаемых вакансий
+    vacancies = []
+
+    async with aiohttp.ClientSession() as session:
+        response = await session.get(url_get_vacancies, params=c.get_request_parameters())
+        response = await response.json()
+        pages = response.get('pages')
+
+        tasks = []
+
+        for page in range(pages):
+            c.change_search_page(page)
+            task = asyncio.create_task(async_get_vacancies(session, copy.deepcopy(c.get_request_parameters()), vacancies))
+            tasks.append(task)
+
+        await asyncio.gather(*tasks)
+
+    return vacancies
+
+
+async def async_get_all_vacancies2(c: ClientManager):
+    c.change_search_per_page(100)  # Устоновка максимального количество получаемых вакансий
+    vacancies = []
+
+    async with aiohttp.ClientSession() as session:
+        tasks = []
+
+        for page in range(20):
+            c.change_search_page(page)
+            task = asyncio.create_task(async_get_vacancies(session, copy.deepcopy(c.get_request_parameters()), vacancies))
+            tasks.append(task)
+
+        await asyncio.gather(*tasks)
+
+    return vacancies
 
 
 async def smarted_get_vacancies(c: ClientManager, count_vacancies: int = 0) -> list:
@@ -41,7 +83,11 @@ async def smarted_get_vacancies(c: ClientManager, count_vacancies: int = 0) -> l
     elif c.get_is_new_vacancies() and count_vacancies:
         return c.get_vacancies()[:count_vacancies]
 
-    data = await get_all_vacancies(c)
+    from time import time
+
+    start = time()
+    data = await async_get_all_vacancies(c)
+    print(f'{time() - start}')
 
     filters = c.get_filters()
 
@@ -81,7 +127,7 @@ async def extend_vacancies(list_vacancies: list) -> list:
         url = vacancy.get(P.url)  # Получение ссылки на данные со страницы вакансии
 
         if url:
-            vacancy = await send_requests(url)
+            vacancy = await async_send_requests(url)
         else:
             continue
 

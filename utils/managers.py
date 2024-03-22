@@ -50,13 +50,10 @@ class ClientManager:
         {P.ind_profile: P.base, P.profiles: {P.base: {P.request_parameters: {}, P.filters: [], P.sorts: []}}}
         """
 
-        if name_profile is None:
-            self.data[P.ind_profile] = P.base
-        else:
-            self.data[P.ind_profile] = name_profile
-
+        self.data[P.ind_profile] = P.base
         self.data[P.profiles] = {}
         self.data[P.profiles][P.base] = self.get_base_struct_profile()
+        self.profile = self.data[P.profiles][P.base]
 
     async def set_state(self, condition):
         await self.state.set_state(condition)

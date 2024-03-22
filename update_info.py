@@ -1,4 +1,4 @@
-from api.handler_api import get_areas_json
+from api.handler_api import async_get_areas_json
 from utils.params import P
 
 
@@ -21,7 +21,7 @@ async def get_areas():
     :return: Cловарь мест в виде {area_lower: number} и {number: area}. Где number - индефикатор места
     """
 
-    areas_tree = await get_areas_json()
+    areas_tree = await async_get_areas_json()
     areas = dict()
     json_areas_to_dict(areas_tree, areas)
 
