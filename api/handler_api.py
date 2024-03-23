@@ -4,27 +4,30 @@ from api.url_requests import *
 from aiohttp.client import ClientSession
 
 
-# headers={
-#                 'User-Agent': 'MyApp/1.0 (my-app-feedback@example.com)',
-#                 'HH-User-Agent': 'MyApp/1.0 (my-app-feedback@example.com)',
-#                 'Content-Type': 'application/x-www-form-urlencoded'}
+async def async_send_requests_skil(url: str, session: ClientSession, params: dict | None, out: list) -> any:
+    async with session.get(url, params=params) as response:
+        data = await response.json()
 
-async def async_send_requests(url: str, session: ClientSession, params: dict, out: list) -> any:
-    async with session.get(url, params=params, headers={
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
-    }) as response:
+        # time.sleep(0.05)
+        if not data.get('errors'):
+            out.append(data)
 
+
+async def async_send_requests(url: str, session: ClientSession, params: dict | None, out: list) -> any:
+    async with session.get(url, params=params) as response:
         data = await response.json()
         vacancies = data.get('items')
         # time.sleep(0.05)
         if vacancies:
-            # print(response.url)
             out.extend(vacancies)
         else:
-            await asyncio.create_task(async_send_requests(url, session, params, out))
-            # if response.status != 400:
-            print(response.status)
-            print(await response.json())
+            if response.status == 400:
+                print(response.status)
+                print(await response.json())
+                await asyncio.create_task(async_send_requests(url, session, params, out))
+            elif response.status != 200:
+                print(response.status)
+                print(await response.json())
 
 
 async def async_get_areas_json(session: ClientSession, params: dict, out: list) -> any:

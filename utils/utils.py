@@ -3,7 +3,7 @@ import copy
 import asyncio
 import aiohttp
 from api.url_requests import url_get_vacancies
-from api.handler_api import async_send_requests, async_get_vacancies
+from api.handler_api import async_send_requests, async_get_vacancies, async_send_requests_skil
 from utils.formats import format_vacancies, format_skills
 from utils.keys_sort import sort_by_salaries
 from utils.filters import FilterPresenceSalary
@@ -11,53 +11,55 @@ from utils.managers import ClientManager
 from utils.params import P
 
 
-async def get_all_vacancies(c: ClientManager):
-    page = -1  # Сдвиг для красоты (первая страница - 0)
-    data = []  # Список вакансий
-    c.change_search_per_page(100)  # Устоновка максимального количество получаемых вакансий
+# async def get_all_vacancies(c: ClientManager):
+#     page = -1  # Сдвиг для красоты (первая страница - 0)
+#     data = []  # Список вакансий
+#     c.change_search_per_page(100)  # Устоновка максимального количество получаемых вакансий
+#
+#     while True:
+#         page += 1
+#         c.change_search_page(page)
+#         vacancies = await async_get_vacancies(c.get_request_parameters())
+#
+#         if vacancies and vacancies['items']:
+#             data.extend(vacancies['items'])
+#         else:
+#             break
+#
+#         if page == vacancies.get('pages'):  # Проверка на последнюю стнаницу
+#             break
+#
+#     return data
 
-    while True:
-        page += 1
-        c.change_search_page(page)
-        vacancies = await async_get_vacancies(c.get_request_parameters())
-
-        if vacancies and vacancies['items']:
-            data.extend(vacancies['items'])
-        else:
-            break
-
-        if page == vacancies.get('pages'):  # Проверка на последнюю стнаницу
-            break
-
-    return data
-
-
-async def async_get_all_vacancies(c: ClientManager):
-    c.change_search_per_page(100)  # Устоновка максимального количество получаемых вакансий
-    vacancies = []
-
-    async with aiohttp.ClientSession() as session:
-        response = await session.get(url_get_vacancies, params=c.get_request_parameters())
-        response = await response.json()
-        pages = response.get('pages')
-
-        tasks = []
-
-        for page in range(pages):
-            c.change_search_page(page)
-            task = asyncio.create_task(async_get_vacancies(session, copy.deepcopy(c.get_request_parameters()), vacancies))
-            tasks.append(task)
-
-        await asyncio.gather(*tasks)
-
-    return vacancies
+#
+# async def async_get_all_vacancies(c: ClientManager):
+#     c.change_search_per_page(100)  # Устоновка максимального количество получаемых вакансий
+#     vacancies = []
+#
+#     async with aiohttp.ClientSession() as session:
+#         response = await session.get(url_get_vacancies, params=c.get_request_parameters())
+#         response = await response.json()
+#         pages = response.get('pages')
+#
+#         tasks = []
+#
+#         for page in range(pages):
+#             c.change_search_page(page)
+#             task = asyncio.create_task(async_get_vacancies(session, copy.deepcopy(c.get_request_parameters()), vacancies))
+#             tasks.append(task)
+#
+#         await asyncio.gather(*tasks)
+#
+#     return vacancies
 
 
 async def async_get_all_vacancies2(c: ClientManager):
     c.change_search_per_page(100)  # Устоновка максимального количество получаемых вакансий
     vacancies = []
 
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(headers={
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+    }) as session:
         tasks = []
 
         for page in range(20):
@@ -123,16 +125,21 @@ async def extend_vacancies(list_vacancies: list) -> list:
 
     data = []
 
-    for vacancy in list_vacancies:
-        url = vacancy.get(P.url)  # Получение ссылки на данные со страницы вакансии
+    async with aiohttp.ClientSession(headers={
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+    }) as session:
+        tasks = []
 
-        if url:
-            vacancy = await async_send_requests(url)
-        else:
-            continue
+        for vacancy in list_vacancies:
+            url = vacancy.get(P.url)  # Получение ссылки на данные со страницы вакансии
 
-        if vacancy:
-            data.append(vacancy)
+            if url:
+                task = asyncio.create_task(async_send_requests_skil(url, session, None, data))
+                tasks.append(task)
+            else:
+                continue
+
+        await asyncio.gather(*tasks)
 
     return data
 
@@ -159,11 +166,13 @@ async def get_format_skills(c: ClientManager) -> str:
     :return: Форматированное сообщение о стеке технологий
     """
 
-    count = 10
+    count = 300
     data = await smarted_get_vacancies(c, count_vacancies=count)
-    data = data[:count]
     extended_data = await extend_vacancies(data)
+    print(len(data))
     skills = await get_skills(extended_data)
+    print(len(skills))
+
     message = format_skills(skills, len(extended_data))
 
     return message

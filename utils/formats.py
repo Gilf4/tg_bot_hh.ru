@@ -46,7 +46,7 @@ def format_skills(skills: dict, count_vacancies: int) -> str:
     ind = 0
 
     # Сортировка ключей по частоте встречаемости
-    name_skills = sorted(skills.keys(), key=lambda x: skills[x], reverse=True)
+    name_skills = sorted(skills.keys(), key=lambda x: skills[x], reverse=True)[:51]
 
     for skill in name_skills:
         count_skill = skills[skill]
