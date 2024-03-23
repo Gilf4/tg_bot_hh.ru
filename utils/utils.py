@@ -86,7 +86,7 @@ async def smarted_get_vacancies(c: ClientManager, count_vacancies: int = 0) -> l
     from time import time
 
     start = time()
-    data = await async_get_all_vacancies(c)
+    data = await async_get_all_vacancies2(c)
     print(f'{time() - start}')
 
     filters = c.get_filters()
