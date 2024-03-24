@@ -31,7 +31,7 @@ async def get_profile(message: Message):
 
 async def get_skills(massage: Message, state: FSMContext):
     text_answer = f'''
-        Данные собираються...
+        Данные собираются...
     '''
 
     c = ClientManager()
