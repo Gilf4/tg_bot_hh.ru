@@ -4,6 +4,3 @@
     основе данных с сайта hh.ru. Бот позволяет пользователям получать актуальные данные о популярности 
     языков программирования, их использовании и требованиях к ним на основе вакансий, размещенных на 
     сайте hh.ru.
-## Установка
-    1)Клонируйте репозиторий: `[git clone https://github.com/yourusername/your-repo.git](https://github.com/Gilf4/tg_bot_hh.ru.git)https://github.com/Gilf4/tg_bot_hh.ru.git`
-    2)Запустите бота: `python bot.py`
