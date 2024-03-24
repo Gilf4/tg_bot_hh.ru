@@ -2,8 +2,7 @@ from collections import defaultdict
 import copy
 import asyncio
 import aiohttp
-from api.url_requests import url_get_vacancies
-from api.handler_api import async_send_requests, async_get_vacancies, async_send_requests_skil
+from api.handler_api import async_get_vacancies, async_base_send_requests
 from utils.formats import format_vacancies, format_skills
 from utils.keys_sort import sort_by_salaries
 from utils.filters import FilterPresenceSalary
@@ -30,7 +29,7 @@ from utils.params import P
 #             break
 #
 #     return data
-
+#
 #
 # async def async_get_all_vacancies(c: ClientManager):
 #     c.change_search_per_page(100)  # Устоновка максимального количество получаемых вакансий
@@ -79,17 +78,13 @@ async def smarted_get_vacancies(c: ClientManager, count_vacancies: int = 0) -> l
     :param c: Параметры для получения вакансии в виде словаря. Для приготовленя рекомундуеться params_get_vacancies
     :return: Список вакансий
     """
-    print(c.get_is_new_vacancies())
+
     if c.get_is_new_vacancies() and not count_vacancies:
         return c.get_vacancies()
     elif c.get_is_new_vacancies() and count_vacancies:
         return c.get_vacancies()[:count_vacancies]
 
-    from time import time
-
-    start = time()
     data = await async_get_all_vacancies2(c)
-    print(f'{time() - start}')
 
     filters = c.get_filters()
 
@@ -118,7 +113,7 @@ async def get_count_vacancies(c: ClientManager) -> int:
 
 async def extend_vacancies(list_vacancies: list) -> list:
     """
-    Функция расширяет информацию о вакансиях. Работает очень медлено, 1 - 4 с. одна вакансия!
+    Функция расширяет информацию о вакансиях.
     :param list_vacancies: список вакансий для расширения. Предпочтительнее, взятых из smarted_get_vacancies
     :return: список расширенных вакансий
     """
@@ -134,7 +129,7 @@ async def extend_vacancies(list_vacancies: list) -> list:
             url = vacancy.get(P.url)  # Получение ссылки на данные со страницы вакансии
 
             if url:
-                task = asyncio.create_task(async_send_requests_skil(url, session, None, data))
+                task = asyncio.create_task(async_base_send_requests(url, session, None, data))
                 tasks.append(task)
             else:
                 continue
@@ -161,17 +156,15 @@ async def get_skills(extended_vacancies: list) -> dict:
 
 async def get_format_skills(c: ClientManager) -> str:
     """
-    Функция для получения форматированного сообщения о стеке технологий по запросу. Работает медлено!
+    Функция для получения форматированного сообщения о стеке технологий по запросу
     :param c: Параметры для получения вакансии в виде ClientManager
     :return: Форматированное сообщение о стеке технологий
     """
 
-    count = 300
+    count = 300  # max - 180 - 250
     data = await smarted_get_vacancies(c, count_vacancies=count)
     extended_data = await extend_vacancies(data)
-    print(len(data))
     skills = await get_skills(extended_data)
-    print(len(skills))
 
     message = format_skills(skills, len(extended_data))
 
@@ -180,7 +173,7 @@ async def get_format_skills(c: ClientManager) -> str:
 
 async def get_format_vacancies(c: ClientManager):
     """
-    :param c: Параметры для получения вакансии в виде ClientManager
+    :param c: Параметры для получения вакансии в виде ClientManager.r
     :return:
     """
 
@@ -229,13 +222,11 @@ async def calculate_average(data: list) -> float | bool:
 
 async def custom_sort_vacancies(vacancies: list, key_sort: any, reverse=True) -> list:
     """
-    Функция сортирукт вакансии по параметру, который задаётся ключём сортировки (костыль 1 - ый,
-    - сортировка уже полученных данных, а не сортировка при запросе данных).
-    (костыль 2 - ой, - отсутствие конвертации валюты)
+    Функция сортирует вакансии по параметру, который задаётся ключём сортировки. Сортирует на месте.
     :param vacancies: Список вакансий для сортировка
     :param key_sort: Функция, указывающая, параметр по которому будет производиться сортировка
     :param reverse: Если True - сортирует по не возрастанию (включено по дефолту). Если False - по не убыванию
-    :return: Новый отсортированный список
+    :return: Отсортированный список
     """
 
     vacancies.sort(key=key_sort, reverse=reverse)
@@ -247,7 +238,7 @@ async def custom_filter_vacancies(vacancies: list, *args) -> list:
     Функция для фильтрации вакансий
     :param vacancies: вакансии для вильтрации
     :param args: совокупность фильтров для вакансий, переданных через запятую
-    :return: отфильтрованый список
+    :return: Новый отфильтрованый список
     """
 
     filtered_vacancies = []

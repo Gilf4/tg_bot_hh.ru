@@ -125,10 +125,8 @@ async def save_callback_new_profile(call: CallbackQuery, state: FSMContext):
 
     if await c.init(state):
         name = c.get_request_parameters().get(P.text)
-        print(name)
         if c.add_new_profile():
             c.change_query(name)
-            print(c.data)
             await c.save()
             await c.set_state(StepsBase.BASE_WORK)
             await call.message.answer(text_answer)
