@@ -113,9 +113,7 @@ class FilterSkills:
             return True
 
         for skill in vacancy.get(P.key_skills, ()):
-            print(vacancy.get(P.key_skills, ()))
-
-            if skill.lower() not in self.skills:
+            if skill.get('name').lower() not in self.skills:
                 return False
 
         return True
