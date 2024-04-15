@@ -231,4 +231,5 @@ class ClientManager:
         return base_profile
 
     async def save(self):
-        await self.state.update_data(self.data)
+        if self.state:
+            await self.state.update_data(self.data)

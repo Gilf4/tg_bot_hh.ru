@@ -3,13 +3,17 @@ from api.url_requests import *
 from aiohttp.client import ClientSession
 
 
-async def async_base_send_requests(url: str, session: ClientSession, params: dict | None, out: list) -> any:
-    async with session.get(url, params=params) as response:
-        data = await response.json()
+async def async_base_send_requests(url: str, session: ClientSession, params: dict | None = None) -> any:
+    while True:
+        async with session.get(url, params=params) as response:
+            data = await response.json()
+            # print(data)
 
-        # time.sleep(0.05)
-        if not data.get('errors'):
-            out.append(data)
+            if not data.get('errors'):
+                print(url)
+                return data
+
+        await asyncio.sleep(0.1)
 
 
 async def async_get_vacancies(session: ClientSession, params: dict | None, out: list) -> any:

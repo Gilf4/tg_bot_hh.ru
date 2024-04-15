@@ -1,27 +1,28 @@
 import asyncio
-from utils.utils import smarted_get_vacancies, custom_sort_vacancies
-from utils.keys_sort import sort_by_salaries
+import utils.utils as u
+import utils.filters as fil
+from utils.params import P
 from utils.managers import ClientManager
 from utils.get_info import get_areas
+from utils.formats import format_skills
 
 
-async def main1():
+async def main():
     c = ClientManager()
     c.set_base_structure()
-    c.change_query('Уборщик')
+    c.change_query('Python')
 
-    data = await smarted_get_vacancies(c)
-    # data = custom_filter_vacancies(data, FilterPresenceSalary(4))
-    data = await custom_sort_vacancies(data, key_sort=sort_by_salaries)
+    count = 200
+    data = await u.smarted_get_vacancies(c, count_vacancies=count)
+    extended_data = await u.extend_vacancies(data)
+    print(len(data), len([i for i in extended_data if i]))
 
-    for el in data:
-        print(el['alternate_url'])
-
-        if el['salary']:
-            print(el['salary']['from'], el['salary']['to'])
-        else:
-            print('Не указана')
+    s = await u.custom_filter_vacancies(c.get_vacancies(), fil.FilterSkills(['Python', 'SQL', 'PostgreSQL', 'Git', 'Linux']))
+    skills = await u.get_skills(s)
+    message = format_skills(skills, len(extended_data))
+    print(s[0].get(P.key_skills))
+    print(message)
 
 
 if __name__ == '__main__':
-    asyncio.run(main1())
+    asyncio.run(main())

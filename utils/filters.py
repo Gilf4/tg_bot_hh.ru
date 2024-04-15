@@ -102,3 +102,20 @@ class FilterSalaryTo:
             return False
 
         return True
+
+
+class FilterSkills:
+    def __init__(self, skills: list[str]):
+        self.skills = list(map(lambda x: x.lower(), skills))
+
+    def is_(self, vacancy: any) -> bool:
+        if not vacancy:
+            return True
+
+        for skill in vacancy.get(P.key_skills, ()):
+            print(vacancy.get(P.key_skills, ()))
+
+            if skill.lower() not in self.skills:
+                return False
+
+        return True

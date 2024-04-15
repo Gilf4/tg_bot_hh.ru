@@ -10,48 +10,6 @@ from utils.managers import ClientManager
 from utils.params import P
 
 
-# async def get_all_vacancies(c: ClientManager):
-#     page = -1  # Сдвиг для красоты (первая страница - 0)
-#     data = []  # Список вакансий
-#     c.change_search_per_page(100)  # Устоновка максимального количество получаемых вакансий
-#
-#     while True:
-#         page += 1
-#         c.change_search_page(page)
-#         vacancies = await async_get_vacancies(c.get_request_parameters())
-#
-#         if vacancies and vacancies['items']:
-#             data.extend(vacancies['items'])
-#         else:
-#             break
-#
-#         if page == vacancies.get('pages'):  # Проверка на последнюю стнаницу
-#             break
-#
-#     return data
-#
-#
-# async def async_get_all_vacancies(c: ClientManager):
-#     c.change_search_per_page(100)  # Устоновка максимального количество получаемых вакансий
-#     vacancies = []
-#
-#     async with aiohttp.ClientSession() as session:
-#         response = await session.get(url_get_vacancies, params=c.get_request_parameters())
-#         response = await response.json()
-#         pages = response.get('pages')
-#
-#         tasks = []
-#
-#         for page in range(pages):
-#             c.change_search_page(page)
-#             task = asyncio.create_task(async_get_vacancies(session, copy.deepcopy(c.get_request_parameters()), vacancies))
-#             tasks.append(task)
-#
-#         await asyncio.gather(*tasks)
-#
-#     return vacancies
-
-
 async def async_get_all_vacancies2(c: ClientManager):
     c.change_search_per_page(100)  # Устоновка максимального количество получаемых вакансий
     vacancies = []
@@ -111,30 +69,30 @@ async def get_count_vacancies(c: ClientManager) -> int:
     return len(data)
 
 
-async def extend_vacancies(list_vacancies: list) -> list:
+async def extend_vacancies(list_vacancies: list) -> tuple | list:
     """
     Функция расширяет информацию о вакансиях.
     :param list_vacancies: список вакансий для расширения. Предпочтительнее, взятых из smarted_get_vacancies
     :return: список расширенных вакансий
     """
 
-    data = []
+    connector = aiohttp.TCPConnector(limit=150)
 
     async with aiohttp.ClientSession(headers={
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
-    }) as session:
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36'
+    }, connector=connector) as session:
         tasks = []
 
         for vacancy in list_vacancies:
             url = vacancy.get(P.url)  # Получение ссылки на данные со страницы вакансии
 
             if url:
-                task = asyncio.create_task(async_base_send_requests(url, session, None, data))
+                task = asyncio.create_task(async_base_send_requests(url, session))
                 tasks.append(task)
             else:
                 continue
 
-        await asyncio.gather(*tasks)
+        data = await asyncio.gather(*tasks)
 
     return data
 
@@ -148,8 +106,12 @@ async def get_skills(extended_vacancies: list) -> dict:
     skills = defaultdict(int)
 
     for vacancy in extended_vacancies:
-        for skill in vacancy.get(P.key_skills, []):
-            skills[skill[P.name]] += 1
+        if vacancy:
+            for skill in vacancy.get(P.key_skills, []):
+                skills[skill[P.name]] += 1
+        else:
+            # print('Нет вакансий')
+            pass
 
     return skills
 
@@ -161,11 +123,12 @@ async def get_format_skills(c: ClientManager) -> str:
     :return: Форматированное сообщение о стеке технологий
     """
 
-    count = 300  # max - 180 - 250
+    count = 2000  # max - 180 - 250
+
     data = await smarted_get_vacancies(c, count_vacancies=count)
     extended_data = await extend_vacancies(data)
     skills = await get_skills(extended_data)
-
+    print(len(data), len([i for i in extended_data if i]))
     message = format_skills(skills, len(extended_data))
 
     return message
