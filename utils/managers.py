@@ -5,10 +5,15 @@ from utils.filters import FilterSalaryFrom, FilterSalaryTo
 
 
 class ClientManager:
-    def __init__(self):
+    def __init__(self, query: str = None, area: str = None):
         self.data = self.get_base_struct_data()
         self.profile = self.data[P.profiles][P.base]
         self.state: FSMContext | None = None
+
+        if query:
+            self.change_query(query)
+        if area:
+            self.change_area(area)
 
     async def init(self, state: FSMContext):
         self.state = state
@@ -19,22 +24,17 @@ class ClientManager:
 
         data = await state.get_data()
 
-        if not data:
-            print('Необходимая структура не найдена - ', 'await state.get_data() = ', data)
+        if not data:  # Не инициализированная машина состояний
             return
 
         self.data = data
-
-        ind_profile = self.data.get(P.ind_profile)
-        if not ind_profile:
-            print('Необходимая структура не найдена - ', data)
-            return
 
         profiles = self.data.get(P.profiles)
         if not profiles:
             print('Необходимая структура не найдена - ', data)
             return
 
+        ind_profile = self.data.get(P.ind_profile)
         profile = profiles.get(ind_profile)
         if type(profile) is not dict:
             print('Необходимая структура не найдена - ', data)
