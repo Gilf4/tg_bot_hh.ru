@@ -2,6 +2,8 @@ import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher
+from aiogram.enums.parse_mode import ParseMode
+from aiogram.client.default import DefaultBotProperties
 from aiogram.filters import Command, CommandStart
 from aiogram import F
 from bot.config import Bot_Token
@@ -28,7 +30,7 @@ from bot.states.states_base import StepsBase
 async def start():
     logging.basicConfig(level=logging.INFO)
 
-    bot = Bot(token=Bot_Token, parse_mode='HTML')
+    bot = Bot(token=Bot_Token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     dp = Dispatcher()
 
     dp.startup.register(start_bot)

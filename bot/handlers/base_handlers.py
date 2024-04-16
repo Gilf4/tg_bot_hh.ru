@@ -23,8 +23,6 @@ async def started_message(message: Message, state: FSMContext):
     c = ClientManager()
     await c.init(state)
 
-    c.set_base_structure()
-
     await c.save()
     await message.answer(text_answer, reply_markup=base_markup)
     await change_query(message, state)

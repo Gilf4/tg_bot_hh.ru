@@ -6,8 +6,8 @@ from utils.filters import FilterSalaryFrom, FilterSalaryTo
 
 class ClientManager:
     def __init__(self):
-        self.data: dict = {}
-        self.profile = None
+        self.data = self.get_base_struct_data()
+        self.profile = self.data[P.profiles][P.base]
         self.state: FSMContext | None = None
 
     async def init(self, state: FSMContext):
@@ -44,16 +44,35 @@ class ClientManager:
 
         return True
 
-    def set_base_structure(self, name_profile: str = None):
+    def get_base_struct_data(self):
         """
         Возвращаект базовую структуру не временных данных пользователя. В виде:
         {P.ind_profile: P.base, P.profiles: {P.base: {P.request_parameters: {}, P.filters: [], P.sorts: []}}}
         """
 
-        self.data[P.ind_profile] = P.base
-        self.data[P.profiles] = {}
-        self.data[P.profiles][P.base] = self.get_base_struct_profile()
-        self.profile = self.data[P.profiles][P.base]
+        data = {
+            P.ind_profile: P.base,
+            P.profiles: {
+                P.base: self.get_base_struct_profile()
+            }
+        }
+
+        return data
+
+    @staticmethod
+    def get_base_struct_profile():
+        base_profile = {
+            P.filters: [],
+            P.sorts: None,
+            P.vacancies: [],
+            P.request_parameters: {},
+            P.page: 0,
+            P.per_page: 5,
+            P.is_new_vacancies: False,
+            P.revers_sort: True
+        }
+
+        return base_profile
 
     async def set_state(self, condition):
         await self.state.set_state(condition)
@@ -214,21 +233,6 @@ class ClientManager:
 
     def get_count_profiles(self):
         return len(self.data.get(P.profiles, {}))
-
-    @staticmethod
-    def get_base_struct_profile():
-        base_profile = {
-            P.filters: [],
-            P.sorts: None,
-            P.vacancies: [],
-            P.request_parameters: {},
-            P.page: 0,
-            P.per_page: 5,
-            P.is_new_vacancies: False,
-            P.revers_sort: True
-        }
-
-        return base_profile
 
     async def save(self):
         if self.state:
