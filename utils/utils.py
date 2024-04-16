@@ -69,6 +69,18 @@ async def get_count_vacancies(c: ClientManager) -> int:
     return len(data)
 
 
+async def get_extend_vacancies(c: ClientManager, count: int = 0) -> tuple | list:
+    """
+        Функция для получения расширенных данный о вакансии. Работает медленно!
+        :param c: экземпляр ClientManager
+        :param count: количество вакансий
+        :return: список с расширенныйми вакансиями
+        """
+
+    vacancies = await smarted_get_vacancies(c, count)
+    return await extend_vacancies(vacancies)
+
+
 async def extend_vacancies(list_vacancies: list) -> tuple | list:
     """
     Функция расширяет информацию о вакансиях.
@@ -123,12 +135,8 @@ async def get_format_skills(c: ClientManager) -> str:
     :return: Форматированное сообщение о стеке технологий
     """
 
-    count = 2000  # max - 180 - 250
-
-    data = await smarted_get_vacancies(c, count_vacancies=count)
-    extended_data = await extend_vacancies(data)
+    extended_data = await get_extend_vacancies(c)
     skills = await get_skills(extended_data)
-    print(len(data), len([i for i in extended_data if i]))
     message = format_skills(skills, len(extended_data))
 
     return message

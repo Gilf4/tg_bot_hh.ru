@@ -12,16 +12,15 @@ async def main():
     c.set_base_structure()
     c.change_query('Python')
 
-    count = 1000
-    data = await u.smarted_get_vacancies(c, count_vacancies=count)
-    extended_data = await u.extend_vacancies(data)
-    print(len(data), len([i for i in extended_data if i]))
+    count = 2000
+    # Скилы есть только в расширенный вакансиях
+    extend_vacancies = await u.get_extend_vacancies(c, count=count)
 
-    s = await u.custom_filter_vacancies(extended_data, fil.FilterSkills(['Python', 'SQL', 'PostgreSQL', 'Git', 'Linux']))
+    s = await u.custom_filter_vacancies(extend_vacancies, fil.FilterSkills(['Python', 'SQL', 'PostgreSQL', 'Git', 'Linux']))
     skills = await u.get_skills(s)
-    message = format_skills(skills, len(extended_data))
+
     print(len(s))
-    print(message)
+    print(format_skills(skills, len(extend_vacancies)))
 
 
 if __name__ == '__main__':
