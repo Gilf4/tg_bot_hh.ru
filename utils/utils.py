@@ -232,19 +232,29 @@ async def get_salaries(c: ClientManager) -> list:
         return []
 
     for vacancy in vacancies:
-        salary = vacancy.get('salary')
-
-        if salary:
-            from_value = salary.get('from')
-            to_value = salary.get('to')
-            if from_value and to_value:
-                salaries.append((from_value + to_value) / 2)
-            elif from_value:
-                salaries.append(from_value)
-            elif to_value:
-                salaries.append(to_value)
+        salary = get_salary(vacancy)
+        if salary and salary[0] == 1:
+            salaries.append(sum(salary) / 2)
+        elif salary:
+            salaries.append(salary[1])
 
     return salaries
+
+
+def get_salary(vacancy: dict):
+    salary = vacancy.get('salary')
+    if not salary:
+        return
+
+    from_value = salary.get('from')
+    to_value = salary.get('to')
+
+    if from_value and to_value:
+        return 1, from_value, to_value
+    elif from_value:
+        return 2, from_value
+    elif to_value:
+        return 3, to_value
 
 
 async def main():
