@@ -10,7 +10,7 @@ from utils.managers import ClientManager
 from utils.params import P
 
 
-async def async_get_all_vacancies2(c: ClientManager):
+async def async_get_all_vacancies(c: ClientManager):
     c.change_search_per_page(100)  # Устоновка максимального количество получаемых вакансий
     vacancies = []
 
@@ -42,7 +42,7 @@ async def smarted_get_vacancies(c: ClientManager, count_vacancies: int = 0) -> l
     elif c.get_is_new_vacancies() and count_vacancies:
         return c.get_vacancies()[:count_vacancies]
 
-    data = await async_get_all_vacancies2(c)
+    data = await async_get_all_vacancies(c)
 
     filters = c.get_filters()
 
