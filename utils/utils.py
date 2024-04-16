@@ -69,7 +69,7 @@ async def get_count_vacancies(c: ClientManager) -> int:
     return len(data)
 
 
-async def get_extend_vacancies(c: ClientManager, count: int = 0) -> tuple | list:
+async def get_extend_vacancies(c: ClientManager, count: int = 200) -> tuple | list:
     """
         Функция для получения расширенных данный о вакансии. Работает медленно!
         :param c: экземпляр ClientManager
@@ -248,9 +248,7 @@ async def get_salaries(c: ClientManager) -> list:
 
 
 async def main():
-    c = ClientManager()
-    c.set_base_structure()
-    c.change_query('Уборщик')
+    c = ClientManager(query='Уборщик')
 
     data = await smarted_get_vacancies(c.get_request_parameters())
     data = await custom_sort_vacancies(data, key_sort=sort_by_salaries)
