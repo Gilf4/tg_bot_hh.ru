@@ -7,22 +7,23 @@ from utils.get_info import get_areas
 from utils.formats import format_skills
 
 
-async def main():
-    c = ClientManager(query='Python', area='Нижний Новгород')
+async def get_vacancies(query: str, area: str, skills: list[str]) -> list:
+    c = ClientManager(query=query, area='Нижний Новгород')
     count = 2000
-
-    skils = [[],
-             [],
-             [],
-             []]
 
     # Скилы есть только в расширенный вакансиях
     extend_vacancies = await utils.get_extend_vacancies(c, count=count)
-    extend_vacancies = await utils.custom_filter_vacancies(extend_vacancies, FilterSkills(['Python', 'SQL', 'PostgreSQL', 'Git', 'Linux']))
-    skills = await utils.get_skills(extend_vacancies)
+    extend_vacancies = await utils.custom_filter_vacancies(extend_vacancies, FilterSkills(
+        skills))
 
-    print(len(extend_vacancies))
-    print(format_skills(skills, len(extend_vacancies)))
+    return extend_vacancies
+
+
+async def main():
+    skills = [['Python', 'SQL', 'PostgreSQL', 'Git', 'Linux'],
+              []]
+
+    vacancies = get_vacancies('Python', 'Нижний Новгород', skills[0])
 
 
 if __name__ == '__main__':
