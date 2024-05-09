@@ -4,11 +4,10 @@ from utils import utils
 from utils.params import P
 from utils.managers import ClientManager
 from utils.get_info import get_areas
-from utils.formats import format_skills
 
 
 async def get_vacancies(query: str, area: str, skills: list[str]) -> list:
-    c = ClientManager(query=query, area='Нижний Новгород')
+    c = ClientManager(query=query, area=area)
     count = 2000
 
     # Скилы есть только в расширенный вакансиях
