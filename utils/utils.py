@@ -78,6 +78,7 @@ async def get_extend_vacancies(c: ClientManager, count: int = 200) -> tuple | li
         """
 
     vacancies = await smarted_get_vacancies(c, count)
+    print(len(vacancies))
     return await extend_vacancies(vacancies)
 
 
