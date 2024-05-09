@@ -88,11 +88,11 @@ async def extend_vacancies(list_vacancies: list) -> tuple | list:
     :return: список расширенных вакансий
     """
 
-    connector = aiohttp.TCPConnector(limit=150)
+    connector = aiohttp.TCPConnector(limit=150, limit_per_host=5)
 
     async with aiohttp.ClientSession(headers={
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36'
-    }, connector=connector) as session:
+    }, connector=connector, trust_env=True) as session:
         tasks = []
 
         for vacancy in list_vacancies:
