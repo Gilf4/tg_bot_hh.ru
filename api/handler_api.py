@@ -28,13 +28,13 @@ async def async_get_vacancies(session: ClientSession, params: dict | None, out: 
                 await asyncio.create_task(async_get_vacancies(session, params, out))
 
 
-async def async_get_areas_json(session: ClientSession, params: dict, out: list) -> any:
+async def async_get_areas_json(session: ClientSession, params: dict) -> any:
     """
     Функция делает запрос для получения мест (https://api.hh.ru/areas)
     :return: словарь мест в виде json'а
     """
 
-    return await async_base_send_requests(url_get_areas, session, params, out)
+    return await async_base_send_requests(url_get_areas, session, params)
 
 
 async def main():
